@@ -249,4 +249,6 @@ class Main:
 
         self.session.post(url, data=data)
 
-main = Main()
+
+if __name__ == "__main__":
+    main = Main()
