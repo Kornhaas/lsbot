@@ -1,16 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import json
 from time import *
-
+import os.path
 from LeitstellenAPI import LeitstellenAPI
 
 
 def main():
-    email = raw_input('Email: ')
-    password = raw_input('Passwort: ')
+    config = {}
+    if os.path.isfile('config.json'):
+        with open('config.json') as cf:
+            config = json.load(cf)
 
-    ls = LeitstellenAPI(email, password)
+    if 'email' not in config:
+        config['email'] = raw_input('Email: ')
+    if 'password' not in config:
+        config['password'] = raw_input('Passwort: ')
+
+    ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
     while True:
