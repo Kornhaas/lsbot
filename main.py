@@ -93,7 +93,7 @@ class Main:
 
         request = self.session.post(url, data=data)
         self.parse_token(request.text)
-        print strftime("%H:%M:%S") + ': Erfolgreich Eingeloggt!'
+        print(strftime("%H:%M:%S") + ': Erfolgreich Eingeloggt!')
 
     def parse_token(self, html):
         tree = fromstring(html)
@@ -186,7 +186,7 @@ class Main:
                             if cartype == self.missingcases[string] and carid in self.cars:
                                 self.send_car_to_accident(accidentid, carid)
                                 del self.cars[carid]
-                                print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
+                                print(strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert')
                                 t = t + 1
                                 break
                 else:
@@ -200,7 +200,7 @@ class Main:
                             if cartype == self.missingcases[string] and carid in self.cars:
                                 self.send_car_to_accident(accidentid, carid)
                                 del self.cars[carid]
-                                print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
+                                print(strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert')
                                 t = t + 1
                                 break
         else:
@@ -208,7 +208,7 @@ class Main:
                 for key, value in self.cars.items():
                     if value == 'LF 20/16':
                         self.send_car_to_accident(accidentid, key)
-                        print strftime("%H:%M:%S") + ': ' + value + ' zu ' + accident['name'] + ' alarmiert'
+                        print(strftime("%H:%M:%S") + ': ' + value + ' zu ' + accident['name'] + ' alarmiert')
                         break
 
     @staticmethod
