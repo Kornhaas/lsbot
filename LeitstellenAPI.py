@@ -9,7 +9,6 @@ from mechanize import Browser
 class LeitstellenAPI:
     html = ''
     authenticity_token = ''
-    accidents = {}
     status = ''
     cars = {}
     fireman_at_accident = 0
@@ -79,7 +78,7 @@ class LeitstellenAPI:
 
         i = 0
 
-        self.accidents = {}
+        accidents = {}
 
         while i < len(ids) - 1:
             idpoint = ids[i].find(',"id":')
@@ -112,7 +111,7 @@ class LeitstellenAPI:
                         missingarray[missing[t][:2]] = missing[t][2:]
                     t = t + 1
 
-            self.accidents[ids[i][idpoint + 6: idpoint + 15]] = {
+            accidents[ids[i][idpoint + 6: idpoint + 15]] = {
                 'status': ids[i][statusstartpoint + 8: statusendpoint][-4:-1],
                 'missing': missingarray,
                 'name': str(ids[i][namestartpoint + 10: nameendpoint][1:])
@@ -125,6 +124,7 @@ class LeitstellenAPI:
                 'vehicle_state': ''
             }
             i = i + 1
+        return accidents
 
     def get_accident(self, accidentid, accident):
         mission = self.session.get('https://www.leitstellenspiel.de/missions/' + accidentid)
