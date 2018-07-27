@@ -3,7 +3,7 @@
 from time import strftime
 import requests
 from lxml.html import fromstring
-
+from bs4 import BeautifulSoup
 
 class LeitstellenAPI:
     html = ''
@@ -45,9 +45,10 @@ class LeitstellenAPI:
         self.session.headers.update(self.headers)
 
         url = "https://www.leitstellenspiel.de/users/sign_in"
-        request = self.session.post(url)
+        r = self.session.post(url)
 
-        self.parse_token(request.text)
+        login_page = BeautifulSoup(r.content, 'html.parser')
+        self.authenticity_token = login_page.find('input', {'name': 'authenticity_token'}).get('value')
 
         data = {
             'authenticity_token': self.authenticity_token,
@@ -57,13 +58,12 @@ class LeitstellenAPI:
             'commit': 'Einloggen'
         }
 
-        request = self.session.post(url, data=data)
-        self.parse_token(request.text)
-        print(strftime("%H:%M:%S") + ': Erfolgreich Eingeloggt!')
+        r = self.session.post(url, data=data)
+        login_page = BeautifulSoup(r.content, 'html.parser')
+        self.authenticity_token = login_page.find('input', {'name': 'authenticity_token'}).get('value')
+        username = login_page.find('a', {'id': 'navbar_profile_link'}).text[1:]
 
-    def parse_token(self, html):
-        tree = fromstring(html)
-        self.authenticity_token = tree.xpath('//meta[@name="csrf-token"]/@content')[0]
+        print(strftime("%H:%M:%S") + ': Erfolgreich Eingeloggt als ' + username)
 
     def get_all_accidents(self):
         mission = self.session.get('https://www.leitstellenspiel.de/')
