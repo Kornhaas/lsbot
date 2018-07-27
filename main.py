@@ -20,11 +20,18 @@ def main():
     ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
+    last_missions = []
     while True:
         ls.generate_missions()
 
         missions = ls.get_all_missions()
-        print([a['caption'] for a in missions])
+        for m in missions:
+            if m['caption'] not in last_missions:
+                print('new mission: %s' % m['caption'])
+        for m in last_missions:
+            if m not in [n['caption'] for n in missions]:
+                print('finished mission: %s' % m)
+        last_missions = [m['caption'] for m in missions]
 
         for m in missions:
             details = ls.get_mission_details(m['id'])
