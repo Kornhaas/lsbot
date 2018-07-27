@@ -3,7 +3,6 @@
 from time import strftime
 import requests
 from lxml.html import fromstring
-from mechanize import Browser
 
 
 class LeitstellenAPI:
@@ -42,13 +41,13 @@ class LeitstellenAPI:
         self.password = password
 
     def login(self):
+        self.session = requests.session()
+        self.session.headers.update(self.headers)
+
         url = "https://www.leitstellenspiel.de/users/sign_in"
+        request = self.session.post(url)
 
-        br = Browser()
-
-        response = br.open(url)
-
-        self.parse_token(response.read())
+        self.parse_token(request.text)
 
         data = {
             'authenticity_token': self.authenticity_token,
@@ -57,9 +56,6 @@ class LeitstellenAPI:
             'user[remember_me]': 1,
             'commit': 'Einloggen'
         }
-
-        self.session = requests.session()
-        self.session.headers.update(self.headers)
 
         request = self.session.post(url, data=data)
         self.parse_token(request.text)
