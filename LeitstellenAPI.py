@@ -4,6 +4,8 @@ from time import strftime
 import requests
 from lxml.html import fromstring
 from bs4 import BeautifulSoup
+import re
+import json
 
 class LeitstellenAPI:
     session = None
@@ -67,60 +69,10 @@ class LeitstellenAPI:
         print('successfully logged in as %s' % self.username)
 
     def get_all_accidents(self):
-        mission = self.session.get('https://www.leitstellenspiel.de/')
-        startpoint = mission.text.find('missionMarkerAdd')
-        endpoint = mission.text.find('missionMarkerBulkAdd', startpoint)
-        ids = mission.text[startpoint:endpoint]
-        ids = ids.split('\n')
-
-        i = 0
-
-        accidents = {}
-
-        while i < len(ids) - 1:
-            idpoint = ids[i].find(',"id":')
-            statusstartpoint = ids[i].find(',"icon":')
-            statusendpoint = ids[i].find(',"caption":', statusstartpoint)
-            missingstartpoint = ids[i].find(',"missing_text":')
-            missingendpoint = ids[i].find(',"id":', missingstartpoint)
-            namestartpoint = ids[i].find(',"caption":')
-            nameendpoint = ids[i].find(',"captionOld":', namestartpoint)
-
-            t = 0
-            missingarray = {}
-
-            if 'Feuerwehrleute' in ids[i][missingstartpoint + 16: missingendpoint]:
-                missing = ids[i][missingstartpoint + 16: missingendpoint][1:].split(',')
-
-                while t < len(missing):
-                    if missing[t][2:][-1:] == '"':
-                        missingarray[int(missing[t][24:26])] = missing[t][27:-2]
-                    else:
-                        missingarray[int(missing[t][24:26])] = missing[t][27:-1]
-                    t = t + 1
-            else:
-                missing = ids[i][missingstartpoint + 16: missingendpoint][43:].split(',')
-
-                while t < len(missing):
-                    if missing[t][2:][-1:] == '"':
-                        missingarray[missing[t][:2]] = missing[t][2:][:-1]
-                    else:
-                        missingarray[missing[t][:2]] = missing[t][2:]
-                    t = t + 1
-
-            accidents[ids[i][idpoint + 6: idpoint + 15]] = {
-                'status': ids[i][statusstartpoint + 8: statusendpoint][-4:-1],
-                'missing': missingarray,
-                'name': str(ids[i][namestartpoint + 10: nameendpoint][1:])
-                    .replace("\u00fc", "ü")
-                    .replace("\u00f6", "ö")
-                    .replace("\u00d6", "Ö")
-                    .replace("\u00df", "ß")
-                    .replace("\u00e4", "ä")
-                    .replace("\u00c4", "Ä"),
-                'vehicle_state': ''
-            }
-            i = i + 1
+        r = self.session.get('https://www.leitstellenspiel.de/')
+        accidents_json = re.findall('missionMarkerAdd\((.*?)\);', r.text)
+        accidents = [json.loads(a.decode('unicode-escape')) for a in accidents_json]
+        # todo process the missing_text
         return accidents
 
     def get_accident(self, accidentid, accident):
