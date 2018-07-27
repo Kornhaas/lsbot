@@ -6,12 +6,14 @@ from lxml.html import fromstring
 from bs4 import BeautifulSoup
 
 class LeitstellenAPI:
-    html = ''
+    session = None
     authenticity_token = ''
+    username = ''
+
+    html = ''
     status = ''
     cars = {}
     fireman_at_accident = 0
-    session = None
 
     missingcases = {
         'Loeschfahrzeug (LF)': 'LF 20/16',
@@ -44,26 +46,25 @@ class LeitstellenAPI:
         self.session = requests.session()
         self.session.headers.update(self.headers)
 
-        url = "https://www.leitstellenspiel.de/users/sign_in"
-        r = self.session.post(url)
+        for i in range(1, 5):
+            print('logging in... [try %d]' % i)
+            data = {
+                'authenticity_token': self.authenticity_token,
+                'user[email]': self.email,
+                'user[password]': self.password,
+                'user[remember_me]': 1,
+                'commit': 'Einloggen'
+            }
+            r = self.session.post("https://www.leitstellenspiel.de/users/sign_in", data=data)
 
-        login_page = BeautifulSoup(r.content, 'html.parser')
-        self.authenticity_token = login_page.find('input', {'name': 'authenticity_token'}).get('value')
+            login_page = BeautifulSoup(r.content, 'html.parser')
+            self.authenticity_token = login_page.find('input', {'name': 'authenticity_token'}).get('value')
 
-        data = {
-            'authenticity_token': self.authenticity_token,
-            'user[email]': self.email,
-            'user[password]': self.password,
-            'user[remember_me]': 1,
-            'commit': 'Einloggen'
-        }
-
-        r = self.session.post(url, data=data)
-        login_page = BeautifulSoup(r.content, 'html.parser')
-        self.authenticity_token = login_page.find('input', {'name': 'authenticity_token'}).get('value')
-        username = login_page.find('a', {'id': 'navbar_profile_link'}).text[1:]
-
-        print(strftime("%H:%M:%S") + ': Erfolgreich Eingeloggt als ' + username)
+            user = login_page.find('a', {'id': 'navbar_profile_link'})
+            if user:
+                self.username = user.text[1:]
+                break
+        print('successfully logged in as %s' % self.username)
 
     def get_all_accidents(self):
         mission = self.session.get('https://www.leitstellenspiel.de/')
