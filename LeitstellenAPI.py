@@ -1,39 +1,16 @@
 # coding=utf-8
 
-from time import strftime
 import requests
-from lxml.html import fromstring
 from bs4 import BeautifulSoup
 import re
 import json
+
 
 class LeitstellenAPI:
     session = None
     authenticity_token = ''
     username = ''
 
-    html = ''
-    status = ''
-    cars = {}
-    fireman_at_accident = 0
-
-    missingcases = {
-        'Loeschfahrzeug (LF)': 'LF 20/16',
-        'Loeschfahrzeuge (LF)': 'LF 20/16',
-        'Feuerwehrleute': 'LF 20/16',
-        'FuStW': 'FuStW',
-        'ELW 1': 'ELW 1',
-        'ELW 2': 'ELW 2',
-        'Drehleitern (DLK 23)': 'DLK 23',
-        'GW-Messtechnik': 'GW-Messtechnik',
-        'GW-A oder AB-Atemschutz': 'GW-A',
-        'Ruestwagen oder HLF': 'RW',
-        'GW-Oel': u'GW-Öl',
-        'GW-Gefahrgut': 'GW-Gefahrgut',
-        'GW-Hoehenrettung': u'GW-Höhenrettung',
-        'Schlauchwagen (GW-L2 Wasser': 'SW Kats',
-        '': ''
-    }
     headers = {
         "Content - Type": "application / x - www - form - urlencoded",
         "User-Agent":
@@ -75,91 +52,27 @@ class LeitstellenAPI:
         # todo process the missing_text
         return accidents
 
-    def get_accident(self, accidentid, accident):
-        mission = self.session.get('https://www.leitstellenspiel.de/missions/' + accidentid)
+    def get_accident_details(self, accidentid):
+        accident = {'vehicles': {}}
+        r = self.session.get('https://www.leitstellenspiel.de/missions/%d' % accidentid)
+        accident_page = BeautifulSoup(r.content, 'html.parser')
 
-        if not self.parse_cars_needed(mission.text):
-            return
+        accident['vehicles']['driving'] = accident_page.find('table', {'id': 'mission_vehicle_driving'}) is not None
+        accident['vehicles']['at_mission'] = accident_page.find('table', {'id': 'mission_vehicle_at_mission'}) is not None
 
-        self.parse_available_cars(mission.text)
+        vehicle_rows = accident_page.find('table', {'id': 'vehicle_show_table_all'}).find('tbody').find_all('tr')
+        accident['vehicles']['avalible'] = []
+        for tr in vehicle_rows:
+            v = {'id': int(tr.get('id')[24:]),
+                 'type': tr.get('vehicle_type'),
+                 'caption': tr.get('vehicle_caption'),
+                 'details': tr.find('input').attrs
+                 }
+            accident['vehicles']['avalible'].append(v)
+        return accident
 
-        if accident['missing'] != {'': ''}:
-            for count, string in accident['missing'].iteritems():
-                string = str(string).replace("\u00f6", "oe")
-                string = string.replace("\u00d6", "Oe")
-                string = string.replace("\u00fc", "ue")
-
-                if string[0] == ' ':
-                    string = string[1:]
-
-                t = 0
-
-                if string == 'Feuerwehrleute':
-                    self.parse_fireman_at_accident(mission.text)
-                    try:
-                        newcount = (int(count) - int(self.fireman_at_accident)) // 9 + 1
-                    except ValueError:
-                        newcount = 0
-
-                    while t < newcount:
-                        for carid, cartype in self.cars.items():
-                            if cartype == self.missingcases[string] and carid in self.cars:
-                                self.send_car_to_accident(accidentid, carid)
-                                del self.cars[carid]
-                                print(strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert')
-                                t = t + 1
-                                break
-                else:
-                    try:
-                        newcount = int(count)
-                    except ValueError:
-                        newcount = 0
-
-                    while t < newcount:
-                        for carid, cartype in self.cars.items():
-                            if cartype == self.missingcases[string] and carid in self.cars:
-                                self.send_car_to_accident(accidentid, carid)
-                                del self.cars[carid]
-                                print(strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert')
-                                t = t + 1
-                                break
-        else:
-            if accident['status'] == 'rot':
-                for key, value in self.cars.items():
-                    if value == 'LF 20/16':
-                        self.send_car_to_accident(accidentid, key)
-                        print(strftime("%H:%M:%S") + ': ' + value + ' zu ' + accident['name'] + ' alarmiert')
-                        break
-
-    @staticmethod
-    def parse_cars_needed(html):
-        tree = fromstring(html)
-        vehicle_state = tree.xpath('//h4[@id="h2_vehicle_driving"]//text()')
-
-        if vehicle_state == ['Fahrzeuge auf Anfahrt']:
-            return False
-        else:
-            return True
-
-    def parse_fireman_at_accident(self, html):
-        tree = fromstring(html)
-        people = tree.xpath('//div[small[contains(., "Feuerwehrleute")]]/small//text()')
-        for value in people:
-            if value[11:-15] == 'Feuerwehrleute':
-                self.fireman_at_accident = value[38:]
-
-    def parse_available_cars(self, html):
-        tree = fromstring(html)
-        cars = tree.xpath('//tr[@class="vehicle_select_table_tr"]/@id')
-        types = tree.xpath('//tr[@class="vehicle_select_table_tr"]/@vehicle_type')
-
-        self.cars = {}
-
-        for i, value in enumerate(cars):
-            self.cars[value[24:]] = types[i]
-
-    def send_car_to_accident(self, accident, car):
-        url = 'https://www.leitstellenspiel.de/missions/' + accident + '/alarm'
+    def send_car_to_accident(self, accidentid, car):
+        url = 'https://www.leitstellenspiel.de/missions/%d/alarm' % accidentid
         data = {
             'authenticity_token': self.authenticity_token,
             'commit': 'Alarmieren',

@@ -25,11 +25,11 @@ def main():
 
         accidents = ls.get_all_accidents()
 
-
-        # for key, accident in accidents.iteritems():
-        #     if accident['status'] == 'rot' or accident['status'] == 'elb':
-        #         if accident['name'] != '"Feuerprobealarm an Schule"':
-        #             ls.get_accident(key, accident)
+        for acc in accidents:
+            details = ls.get_accident_details(acc['id'])
+            if not (details['vehicles']['at_mission'] or details['vehicles']['driving']):
+                ls.send_car_to_accident(acc['id'], details['vehicles']['avalible'][0]['id'])
+                print('send car to %s' % acc['caption'])
 
         sleep(10)
 
