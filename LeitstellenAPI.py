@@ -45,34 +45,34 @@ class LeitstellenAPI:
                 break
         print('successfully logged in as %s' % self.username)
 
-    def get_all_accidents(self):
+    def get_all_missions(self):
         r = self.session.get('https://www.leitstellenspiel.de/')
-        accidents_json = re.findall('missionMarkerAdd\((.*?)\);', r.text)
-        accidents = [json.loads(a.decode('unicode-escape')) for a in accidents_json]
+        missions_json = re.findall('missionMarkerAdd\((.*?)\);', r.text)
+        missions = [json.loads(m.decode('unicode-escape')) for m in missions_json]
         # todo process the missing_text
-        return accidents
+        return missions
 
-    def get_accident_details(self, accidentid):
-        accident = {'vehicles': {}}
-        r = self.session.get('https://www.leitstellenspiel.de/missions/%d' % accidentid)
-        accident_page = BeautifulSoup(r.content, 'html.parser')
+    def get_mission_details(self, missionid):
+        mission = {'vehicles': {}}
+        r = self.session.get('https://www.leitstellenspiel.de/missions/%d' % missionid)
+        mission_page = BeautifulSoup(r.content, 'html.parser')
 
-        accident['vehicles']['driving'] = accident_page.find('table', {'id': 'mission_vehicle_driving'}) is not None
-        accident['vehicles']['at_mission'] = accident_page.find('table', {'id': 'mission_vehicle_at_mission'}) is not None
+        mission['vehicles']['driving'] = mission_page.find('table', {'id': 'mission_vehicle_driving'}) is not None
+        mission['vehicles']['at_mission'] = mission_page.find('table', {'id': 'mission_vehicle_at_mission'}) is not None
 
-        vehicle_rows = accident_page.find('table', {'id': 'vehicle_show_table_all'}).find('tbody').find_all('tr')
-        accident['vehicles']['avalible'] = []
+        vehicle_rows = mission_page.find('table', {'id': 'vehicle_show_table_all'}).find('tbody').find_all('tr')
+        mission['vehicles']['avalible'] = []
         for tr in vehicle_rows:
             v = {'id': int(tr.get('id')[24:]),
                  'type': tr.get('vehicle_type'),
                  'caption': tr.get('vehicle_caption'),
                  'details': tr.find('input').attrs
                  }
-            accident['vehicles']['avalible'].append(v)
-        return accident
+            mission['vehicles']['avalible'].append(v)
+        return mission
 
-    def send_car_to_accident(self, accidentid, car):
-        url = 'https://www.leitstellenspiel.de/missions/%d/alarm' % accidentid
+    def send_car_to_mission(self, missionid, car):
+        url = 'https://www.leitstellenspiel.de/missions/%d/alarm' % missionid
         data = {
             'authenticity_token': self.authenticity_token,
             'commit': 'Alarmieren',

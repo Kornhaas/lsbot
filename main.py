@@ -23,13 +23,14 @@ def main():
     while True:
         ls.generate_missions()
 
-        accidents = ls.get_all_accidents()
+        missions = ls.get_all_missions()
+        print([a['caption'] for a in missions])
 
-        for acc in accidents:
-            details = ls.get_accident_details(acc['id'])
+        for m in missions:
+            details = ls.get_mission_details(m['id'])
             if not (details['vehicles']['at_mission'] or details['vehicles']['driving']):
-                ls.send_car_to_accident(acc['id'], details['vehicles']['avalible'][0]['id'])
-                print('send car to %s' % acc['caption'])
+                ls.send_car_to_mission(m['id'], details['vehicles']['avalible'][0]['id'])
+                print('send car to %s' % m['caption'])
 
         sleep(30)
 
