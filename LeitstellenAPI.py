@@ -81,3 +81,11 @@ class LeitstellenAPI:
         }
 
         self.session.post(url, data=data)
+
+    def generate_missions(self):
+        url = 'https://www.leitstellenspiel.de/mission-generate'
+        try:
+            self.session.get(url, headers={"X-CSRF-Token": self.authenticity_token, "User-Agent": self.headers["User-Agent"]})
+        except Exception as e:
+            print('error reloading missions')
+            print(e)

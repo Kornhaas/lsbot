@@ -21,7 +21,7 @@ def main():
     ls.login()
 
     while True:
-        print('getting accidents')
+        ls.generate_missions()
 
         accidents = ls.get_all_accidents()
 
@@ -31,7 +31,7 @@ def main():
                 ls.send_car_to_accident(acc['id'], details['vehicles']['avalible'][0]['id'])
                 print('send car to %s' % acc['caption'])
 
-        sleep(10)
+        sleep(30)
 
 
 if __name__ == "__main__":
