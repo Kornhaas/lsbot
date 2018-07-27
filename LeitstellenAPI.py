@@ -48,7 +48,7 @@ class LeitstellenAPI:
     def get_all_missions(self):
         r = self.session.get('https://www.leitstellenspiel.de/')
         missions_json = re.findall('missionMarkerAdd\((.*?)\);', r.text)
-        missions = [json.loads(m.decode('unicode-escape')) for m in missions_json]
+        missions = [json.loads(m.encode().decode('unicode-escape')) for m in missions_json]
         # todo process the missing_text
         return missions
 
