@@ -48,13 +48,17 @@ class LeitstellenAPI:
     def get_all_missions(self):
         r = self.session.get('https://www.leitstellenspiel.de/')
         missions_json = re.findall('missionMarkerAdd\((.*?)\);', r.text)
-        missions = [json.loads(m.encode().decode('unicode-escape')) for m in missions_json]
+        missions = {}
+        for m in missions_json:
+            mission = json.loads(m.encode().decode('unicode-escape'))
+            mission['id'] = str(mission['id'])
+            missions[mission['id']] = mission
         # todo process the missing_text
         return missions
 
     def get_mission_details(self, missionid):
         mission = {'vehicles': {}}
-        r = self.session.get('https://www.leitstellenspiel.de/missions/%d' % missionid)
+        r = self.session.get('https://www.leitstellenspiel.de/missions/%s' % missionid)
         mission_page = BeautifulSoup(r.content, 'html.parser')
 
         mission['vehicles']['driving'] = mission_page.find('table', {'id': 'mission_vehicle_driving'}) is not None
@@ -72,7 +76,7 @@ class LeitstellenAPI:
         return mission
 
     def send_car_to_mission(self, missionid, car):
-        url = 'https://www.leitstellenspiel.de/missions/%d/alarm' % missionid
+        url = 'https://www.leitstellenspiel.de/missions/%s/alarm' % missionid
         data = {
             'authenticity_token': self.authenticity_token,
             'commit': 'Alarmieren',

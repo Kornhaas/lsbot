@@ -20,23 +20,23 @@ def main():
     ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
-    last_missions = []
+    last_missions = {}
     while True:
         ls.generate_missions()
 
         missions = ls.get_all_missions()
-        for m in missions:
-            if m['caption'] not in last_missions:
+        for key, m in missions.items():
+            if key not in last_missions:
                 print('new mission: %s' % m['caption'])
-        for m in last_missions:
-            if m not in [n['caption'] for n in missions]:
-                print('finished mission: %s' % m)
-        last_missions = [m['caption'] for m in missions]
+        for key, m in last_missions.items():
+            if key not in missions:
+                print('finished mission: %s' % m['caption'])
+        last_missions = missions
 
-        for m in missions:
-            details = ls.get_mission_details(m['id'])
+        for id, m in missions.items():
+            details = ls.get_mission_details(id)
             if not (details['vehicles']['at_mission'] or details['vehicles']['driving']):
-                ls.send_car_to_mission(m['id'], details['vehicles']['avalible'][0]['id'])
+                ls.send_car_to_mission(id, details['vehicles']['avalible'][0]['id'])
                 print('send car to %s' % m['caption'])
 
         sleep(30)
