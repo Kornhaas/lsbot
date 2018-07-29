@@ -35,9 +35,31 @@ def main():
 
         for id, m in missions.items():
             details = ls.get_mission_details(id)
-            if not (details['vehicles']['at_mission'] or details['vehicles']['driving']):
-                ls.send_car_to_mission(id, details['vehicles']['avalible'][0]['id'])
-                print('send car to %s' % m['caption'])
+            if not details['vehicles']['driving']:
+                if not details['vehicles']['at_mission'] and m['missing'] is None:
+                    # no stated need and no vehicles at mission: probe need
+                    print('probe need for: %s' % m['caption'])
+                    ls.probe_need(id, details['vehicles']['avalible'])
+                if m['missing'] is not None:
+                    avalible_cars = details['vehicles']['avalible']
+                    need_help = False
+                    car_ids = []
+                    for misisng_type in m['missing']:
+                        type_ids = ls.lookup_vehicle_type_ids(misisng_type)
+                        found_car = False
+                        for car in avalible_cars:
+                            if car['type_id'] in type_ids:
+                                car_ids.append(car['id'])
+                                avalible_cars.remove(car)
+                                found_car = True
+                                break
+                        if not found_car:
+                            need_help = True
+                    if need_help:
+                        # todo open mission for verband
+                        pass
+                    ls.send_cars_to_mission(id, car_ids)
+                    print('sent cars to mission: %s' % m['caption'])
 
         sleep(30)
 

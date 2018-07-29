@@ -1,9 +1,9 @@
 # coding=utf-8
-
 import requests
 from bs4 import BeautifulSoup
 import re
 import json
+from time import sleep
 
 
 class LeitstellenAPI:
@@ -70,23 +70,25 @@ class LeitstellenAPI:
         mission['vehicles']['avalible'] = []
         for tr in vehicle_rows:
             v = {'id': int(tr.get('id')[24:]),
-                 'type': tr.get('vehicle_type'),
+                 'type_id': int(vehicle_rows[0].find('td', {'vehicle_type_id': True}).get('vehicle_type_id')),
                  'caption': tr.get('vehicle_caption'),
                  'details': tr.find('input').attrs
                  }
             mission['vehicles']['avalible'].append(v)
         return mission
 
-    def send_car_to_mission(self, missionid, car):
+    def send_cars_to_mission(self, missionid, car_ids):
         url = 'https://www.leitstellenspiel.de/missions/%s/alarm' % missionid
-        data = {
-            'authenticity_token': self.authenticity_token,
-            'commit': 'Alarmieren',
-            'next_mission': 0,
-            'vehicle_ids[]': car
-        }
 
-        self.session.post(url, data=data)
+        # todo this should be done in a single request...
+        for car in car_ids:
+            data = {
+                'authenticity_token': self.authenticity_token,
+                'commit': 'Alarmieren',
+                'next_mission': 0,
+                'vehicle_ids[]': car
+            }
+            self.session.post(url, data=data)
 
     def generate_missions(self):
         url = 'https://www.leitstellenspiel.de/mission-generate'
@@ -100,10 +102,11 @@ class LeitstellenAPI:
         if missing_text is None:
             return None
         matches = re.findall('(?:,|:) (\d+) ([^,]*?)(?=,|$)', missing_text)
-        result = [{
-            'count': int(m[0]),
-            'type': self.lookup_vehicle_type_by_name(m[1])
-        } for m in matches]
+        result = []
+        for m in matches:
+            vtype = self.lookup_vehicle_type_by_name(m[1])
+            for i in range(int(m[0])):
+                result.append(vtype)
         return result
 
     def lookup_vehicle_type_by_name(self, name):
@@ -112,3 +115,18 @@ class LeitstellenAPI:
         else:
             print('WARNING: unknown vehicle name: %s' % name)
             return 'unknown'
+
+    def probe_need(self, missionid, avalible_cars):
+        carid = avalible_cars[0]['id']
+        self.send_cars_to_mission(missionid, [carid])
+        sleep(2)
+        self.recall_car_from_mission(carid)
+
+    def recall_car_from_mission(self, carid):
+        self.session.get('https://www.leitstellenspiel.de/vehicles/%s/backalarm?return=mission' % carid)
+
+    def lookup_vehicle_type_ids(self, type):
+        if type in self.data['vehicle_type_ids']:
+            return self.data['vehicle_type_ids'][type]
+        else:
+            raise AttributeError('unknown vehicle type: %s' % type)
