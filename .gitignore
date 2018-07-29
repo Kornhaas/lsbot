@@ -4,3 +4,4 @@ config.json
 *.ffs_gui
 *.ffs_db
 log.txt
+sync.ffs_lock
