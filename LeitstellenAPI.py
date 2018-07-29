@@ -66,15 +66,17 @@ class LeitstellenAPI:
         mission['vehicles']['driving'] = mission_page.find('table', {'id': 'mission_vehicle_driving'}) is not None
         mission['vehicles']['at_mission'] = mission_page.find('table', {'id': 'mission_vehicle_at_mission'}) is not None
 
-        vehicle_rows = mission_page.find('table', {'id': 'vehicle_show_table_all'}).find('tbody').find_all('tr')
         mission['vehicles']['avalible'] = []
-        for tr in vehicle_rows:
-            v = {'id': int(tr.get('id')[24:]),
-                 'type_id': int(vehicle_rows[0].find('td', {'vehicle_type_id': True}).get('vehicle_type_id')),
-                 'caption': tr.get('vehicle_caption'),
-                 'details': tr.find('input').attrs
-                 }
-            mission['vehicles']['avalible'].append(v)
+        vehicle_table = mission_page.find('table', {'id': 'vehicle_show_table_all'})
+        if vehicle_table is not None:
+            vehicle_rows = vehicle_table.find('tbody').find_all('tr')
+            for tr in vehicle_rows:
+                v = {'id': int(tr.get('id')[24:]),
+                     'type_id': int(vehicle_rows[0].find('td', {'vehicle_type_id': True}).get('vehicle_type_id')),
+                     'caption': tr.get('vehicle_caption'),
+                     'details': tr.find('input').attrs
+                     }
+                mission['vehicles']['avalible'].append(v)
         return mission
 
     def send_cars_to_mission(self, missionid, car_ids):
