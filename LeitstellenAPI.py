@@ -18,6 +18,8 @@ class LeitstellenAPI:
     }
 
     def __init__(self, email, password):
+        with open('game_data.json') as d:
+            self.data = json.load(d)
         self.email = email
         self.password = password
 
@@ -52,8 +54,8 @@ class LeitstellenAPI:
         for m in missions_json:
             mission = json.loads(m.encode().decode('unicode-escape'))
             mission['id'] = str(mission['id'])
+            mission['missing'] = self.parse_missing(mission['missing_text'])
             missions[mission['id']] = mission
-        # todo process the missing_text
         return missions
 
     def get_mission_details(self, missionid):
@@ -93,3 +95,20 @@ class LeitstellenAPI:
         except Exception as e:
             print('error reloading missions')
             print(e)
+
+    def parse_missing(self, missing_text):
+        if missing_text is None:
+            return None
+        matches = re.findall('(?:,|:) (\d+) ([^,]*?)(?=,|$)', missing_text)
+        result = [{
+            'count': int(m[0]),
+            'type': self.lookup_vehicle_type_by_name(m[1])
+        } for m in matches]
+        return result
+
+    def lookup_vehicle_type_by_name(self, name):
+        if name in self.data['vehicle_type_names']:
+            return self.data['vehicle_type_names'][name]
+        else:
+            print('WARNING: unknown vehicle name: %s' % name)
+            return 'unknown'
