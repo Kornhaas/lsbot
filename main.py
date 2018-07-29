@@ -44,8 +44,8 @@ def main():
                     avalible_cars = details['vehicles']['avalible']
                     need_help = False
                     car_ids = []
-                    for misisng_type in m['missing']:
-                        type_ids = ls.lookup_vehicle_type_ids(misisng_type)
+                    for missing_type in m['missing']:
+                        type_ids = ls.lookup_vehicle_type_ids(missing_type)
                         found_car = False
                         for car in avalible_cars:
                             if car['type_id'] in type_ids:
