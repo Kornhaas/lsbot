@@ -119,6 +119,9 @@ class LeitstellenAPI:
             return 'unknown'
 
     def probe_need(self, missionid, avalible_cars):
+        if len(avalible_cars) == 0:
+            print("no car avalible for probing")
+            return
         carid = avalible_cars[0]['id']
         self.send_cars_to_mission(missionid, [carid])
         sleep(2)
