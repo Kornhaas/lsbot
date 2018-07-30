@@ -58,8 +58,9 @@ def main():
                     if need_help:
                         # todo open mission for verband
                         pass
-                    ls.send_cars_to_mission(id, car_ids)
-                    print('sent cars to mission: %s' % m['caption'])
+                    if len(car_ids) > 0:
+                        ls.send_cars_to_mission(id, car_ids)
+                        print('sent cars to mission: %s' % m['caption'])
 
         sleep(30)
 
