@@ -26,10 +26,12 @@ def main():
 
         missions = ls.get_all_missions()
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
+        # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
         # todo better filter criteria
         for k in list(missions):
-            if missions[k]['user_id'] != ls.user['id']:
+            if missions[k]['user_id'] != ls.user['id'] or missions[k]['sw']:
                 del missions[k]
+
         for key, m in missions.items():
             if key not in last_missions:
                 print('new mission: %s' % m['caption'])
