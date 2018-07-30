@@ -103,7 +103,7 @@ class LeitstellenAPI:
     def parse_missing(self, missing_text):
         if missing_text is None:
             return None
-        matches = re.findall('(?:,|:) (\d+) ([^,]*?)(?=,|$)', missing_text)
+        matches = re.findall('(?:[,:]) (\d+) ([^,()]*?)(?: \([^()]*\))?(?=,|$)', missing_text)
         result = []
         for m in matches:
             vtype = self.lookup_vehicle_type_by_name(m[1])
