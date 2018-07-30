@@ -25,6 +25,11 @@ def main():
         ls.generate_missions()
 
         missions = ls.get_all_missions()
+        # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
+        # todo better filter criteria
+        for k, m in missions.items():
+            if m['user_id'] != ls.user['id']:
+                del missions[k]
         for key, m in missions.items():
             if key not in last_missions:
                 print('new mission: %s' % m['caption'])

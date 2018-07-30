@@ -9,7 +9,9 @@ from time import sleep
 class LeitstellenAPI:
     session = None
     authenticity_token = ''
-    username = ''
+    user = {"name": "",
+            "id": 0
+            }
 
     headers = {
         "Content - Type": "application / x - www - form - urlencoded",
@@ -43,9 +45,11 @@ class LeitstellenAPI:
 
             user = login_page.find('a', {'id': 'navbar_profile_link'})
             if user:
-                self.username = user.text[1:]
+                self.user['name'] = user.text[1:]
+                id = re.findall('var\W+user_id\W*=\W*(\d+)\W*;', login_page.text)[0]
+                self.user['id'] = int(id)
                 break
-        print('successfully logged in as %s' % self.username)
+        print('successfully logged in as %s' % self.user['name'])
 
     def get_all_missions(self):
         r = self.session.get('https://www.leitstellenspiel.de/')
