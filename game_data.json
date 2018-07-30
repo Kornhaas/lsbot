@@ -7,7 +7,8 @@
     "Schlauchwagen": "SW",
     "ELW 1": "ELW1",
     "ELW 2": "ELW2",
-    "GW-Messtechnik": "GW-M"
+    "GW-Messtechnik": "GW-M",
+    "FuStW": "FuStW"
   },
   "vehicle_type_ids": {
     "unknown": [],
@@ -17,6 +18,7 @@
     "SW": [13, 14, 15, 16, 11],
     "ELW1": [3, 34],
     "ELW2": [34],
-    "GW-M": [12]
+    "GW-M": [12],
+    "FuStW": [32]
   }
 }
