@@ -75,8 +75,9 @@ class LeitstellenAPI:
         if vehicle_table is not None:
             vehicle_rows = vehicle_table.find('tbody').find_all('tr')
             for tr in vehicle_rows:
+                type_id = tr.find('td', {'vehicle_type_id': True}).get('vehicle_type_id')
                 v = {'id': int(tr.get('id')[24:]),
-                     'type_id': int(vehicle_rows[0].find('td', {'vehicle_type_id': True}).get('vehicle_type_id')),
+                     'type_id': int(type_id),
                      'caption': tr.get('vehicle_caption'),
                      'details': tr.find('input').attrs
                      }
