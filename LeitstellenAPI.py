@@ -56,11 +56,21 @@ class LeitstellenAPI:
         missions_json = re.findall('missionMarkerAdd\((.*?)\);', r.text)
         missions = {}
         for m in missions_json:
-            mission = json.loads(m.encode().decode('unicode-escape'))
+            mission = json.loads(m)
             mission['id'] = str(mission['id'])
             mission['missing'] = self.parse_missing(mission['missing_text'])
             missions[mission['id']] = mission
         return missions
+
+    def get_all_buildings(self):
+        r = self.session.get('https://www.leitstellenspiel.de/')
+        buildings_json = re.findall('buildingMarkerAdd\((.*?)\);', r.text)
+        buildings = {}
+        for b in buildings_json:
+            building = json.loads(b)
+            building['id'] = str(building['id'])
+            buildings[building['id']] = building
+        return buildings
 
     def get_mission_details(self, missionid):
         mission = {'vehicles': {}}
@@ -138,3 +148,6 @@ class LeitstellenAPI:
             return self.data['vehicle_type_ids'][type]
         else:
             raise AttributeError('unknown vehicle type: %s' % type)
+
+    def hire_crew(self, id, days):
+        self.session.get('https://www.leitstellenspiel.de/buildings/%s/hire_do/%d' % (id, days))

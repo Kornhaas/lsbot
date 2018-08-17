@@ -20,6 +20,12 @@ def main():
     ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
+    print('hire crew in every building')
+    all_buildings = ls.get_all_buildings()
+    for id, b in all_buildings.items():
+        if b['user_id'] == ls.user['id'] and b['personal_count'] > 0:
+            ls.hire_crew(id, 3)
+
     last_missions = {}
     while True:
         ls.generate_missions()
