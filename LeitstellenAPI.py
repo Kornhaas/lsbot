@@ -108,9 +108,9 @@ class LeitstellenAPI:
     def parse_missing(self, missing_text):
         if missing_text is None:
             return None
-        matches = re.findall('(?:[,:]) (\d+) ([^,()]*?)(?: \([^()]*\))?(?=,|$)', missing_text)
+        vehicle_matches = re.findall('(?:[,:]) (\d+) ([^,()]*?)(?: \([^()]*\))?(?=,|$)', missing_text)
         result = []
-        for m in matches:
+        for m in vehicle_matches:
             vtype = self.lookup_vehicle_type_by_name(m[1])
             for i in range(int(m[0])):
                 result.append(vtype)
