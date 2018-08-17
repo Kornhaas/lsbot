@@ -87,15 +87,13 @@ class LeitstellenAPI:
     def send_cars_to_mission(self, missionid, car_ids):
         url = 'https://www.leitstellenspiel.de/missions/%s/alarm' % missionid
 
-        # todo this should be done in a single request...
-        for car in car_ids:
-            data = {
-                'authenticity_token': self.authenticity_token,
-                'commit': 'Alarmieren',
-                'next_mission': 0,
-                'vehicle_ids[]': car
-            }
-            self.session.post(url, data=data)
+        data = {
+            'authenticity_token': self.authenticity_token,
+            'commit': 'Alarmieren',
+            'next_mission': 0,
+            'vehicle_ids[]': car_ids
+        }
+        self.session.post(url, data=data)
 
     def generate_missions(self):
         url = 'https://www.leitstellenspiel.de/mission-generate'
