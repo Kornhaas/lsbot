@@ -6,9 +6,52 @@ from time import *
 import os.path
 from LeitstellenAPI import LeitstellenAPI
 import logging
+import sqlite3
+
+
+class AbstractPeriodicFunction:
+    def __init__(self):
+        raise NotImplementedError()
+
+    def get_name(self):
+        raise NotImplementedError()
+
+    def get_wait_time(self):
+        raise NotImplementedError()
+
+    def run(self, ls):
+        raise NotImplementedError()
+
+
+class CrewHirer(AbstractPeriodicFunction):
+    def __init__(self):
+        pass
+
+    def get_name(self):
+        return 'CREW_HIRE'
+
+    def get_wait_time(self):
+        return 24*60*60
+
+    def run(self, ls):
+        logging.info('hire crew in every building')
+        all_buildings = ls.get_all_buildings()
+        for id, b in all_buildings.items():
+            if b['user_id'] == ls.user['id'] and b['personal_count'] > 0:
+                ls.hire_crew(id, 3)
+
+
+periodic_functions = [CrewHirer()]
 
 
 def main():
+    # connect the db
+    db = sqlite3.connect('lsbot.db')
+    # create all missing db tables
+    c = db.cursor()
+    c.execute('CREATE TABLE IF NOT EXISTS periodic_tasks (id INTEGER PRIMARY KEY, name TEXT UNIQUE, last_run INTEGER);')
+    db.commit()
+
     config = {}
     if os.path.isfile('config.json'):
         with open('config.json') as cf:
@@ -22,14 +65,18 @@ def main():
     ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
-    logging.info('hire crew in every building')
-    all_buildings = ls.get_all_buildings()
-    for id, b in all_buildings.items():
-        if b['user_id'] == ls.user['id'] and b['personal_count'] > 0:
-            ls.hire_crew(id, 3)
-
     last_missions = {}
     while True:
+        logging.info('checking periodic tasks')
+        for func in periodic_functions:
+            c.execute('SELECT last_run FROM periodic_tasks WHERE name=?', (func.get_name(),))
+            last_run = c.fetchone()
+            if last_run is None or last_run[0] + func.get_wait_time() < time():
+                logging.info('running periodic task "%s"' % func.get_name())
+                func.run(ls)
+                c.execute('INSERT OR REPLACE INTO periodic_tasks(name, last_run) VALUES(?, ?)', (func.get_name(), time()))
+                db.commit()
+
         ls.generate_missions()
 
         missions = ls.get_all_missions()
