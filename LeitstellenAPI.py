@@ -59,7 +59,6 @@ class LeitstellenAPI:
         for m in missions_json:
             mission = json.loads(m)
             mission['id'] = str(mission['id'])
-            mission['missing'] = self.parse_missing(mission['missing_text'])
             missions[mission['id']] = mission
         return missions
 

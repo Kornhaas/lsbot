@@ -63,7 +63,9 @@ class MissionController(AbstractPeriodicTask):
     def run(self, ls, db):
         load_missions_into_db(ls, db)
         probe_new_missions(ls, db)
+        load_missions_into_db(ls, db)
         send_missing_cars(ls, db)
+        load_missions_into_db(ls, db)
 
 
 def load_missions_into_db(ls, db):
@@ -91,7 +93,9 @@ def load_missions_into_db(ls, db):
             m['status'] = "MISSING"
         elif m['vehicle_state'] == 2:
             m['status'] = "ONGOING"
-        if 'status' not in m:
+        elif dbm['status'] == 'NEW':
+            m['status'] = 'NEW'
+        elif 'status' not in m:
             logging.warning('UNKNOWN STATUS IN MISSION %s: "%s"' % (m['id'], m['caption']))
             m['status'] = "NEW"
         db.write_mission(m)
