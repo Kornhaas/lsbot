@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import json
 from time import sleep
+import logging
 
 
 class LeitstellenAPI:
@@ -30,7 +31,7 @@ class LeitstellenAPI:
         self.session.headers.update(self.headers)
 
         for i in range(1, 5):
-            print('logging in... [try %d]' % i)
+            logging.info('logging in... [try %d]' % i)
             data = {
                 'authenticity_token': self.authenticity_token,
                 'user[email]': self.email,
@@ -49,7 +50,7 @@ class LeitstellenAPI:
                 id = re.findall('var\W+user_id\W*=\W*(\d+)\W*;', login_page.text)[0]
                 self.user['id'] = int(id)
                 break
-        print('successfully logged in as %s' % self.user['name'])
+        logging.info('successfully logged in as %s' % self.user['name'])
 
     def get_all_missions(self):
         r = self.session.get('https://www.leitstellenspiel.de/')
@@ -109,9 +110,8 @@ class LeitstellenAPI:
         url = 'https://www.leitstellenspiel.de/mission-generate'
         try:
             self.session.get(url, headers={"X-CSRF-Token": self.authenticity_token, "User-Agent": self.headers["User-Agent"]})
-        except Exception as e:
-            print('error reloading missions')
-            print(e)
+        except Exception:
+            logging.exception('error reloading missions')
 
     def parse_missing(self, missing_text):
         if missing_text is None:
@@ -128,12 +128,12 @@ class LeitstellenAPI:
         if name in self.data['vehicle_type_names']:
             return self.data['vehicle_type_names'][name]
         else:
-            print('WARNING: unknown vehicle name: %s' % name)
+            logging.warn('unknown vehicle name: %s' % name)
             return 'unknown'
 
     def probe_need(self, missionid, avalible_cars):
         if len(avalible_cars) == 0:
-            print("no car avalible for probing")
+            logging.info("no car avalible for probing")
             return
         carid = avalible_cars[0]['id']
         self.send_cars_to_mission(missionid, [carid])

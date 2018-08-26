@@ -5,3 +5,4 @@ config.json
 *.ffs_db
 log.txt
 sync.ffs_lock
+lsbot.log

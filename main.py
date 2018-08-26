@@ -1,9 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import json
+import sys
 from time import *
 import os.path
 from LeitstellenAPI import LeitstellenAPI
+import logging
 
 
 def main():
@@ -20,7 +22,7 @@ def main():
     ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
-    print('hire crew in every building')
+    logging.info('hire crew in every building')
     all_buildings = ls.get_all_buildings()
     for id, b in all_buildings.items():
         if b['user_id'] == ls.user['id'] and b['personal_count'] > 0:
@@ -40,10 +42,10 @@ def main():
 
         for key, m in missions.items():
             if key not in last_missions:
-                print('new mission: %s' % m['caption'])
+                logging.info('new mission: %s' % m['caption'])
         for key, m in last_missions.items():
             if key not in missions:
-                print('finished mission: %s' % m['caption'])
+                logging.info('finished mission: %s' % m['caption'])
         last_missions = missions
 
         for id, m in missions.items():
@@ -70,14 +72,44 @@ def main():
                         pass
                     if len(car_ids) > 0:
                         ls.send_cars_to_mission(id, car_ids)
-                        print('sent cars to mission: %s' % m['caption'])
+                        logging.info('sent cars to mission: %s' % m['caption'])
+                        sleep(2)
                 elif not details['vehicles']['at_mission']:
                     # no stated need and no vehicles at mission: probe need
-                    print('probe need for: %s' % m['caption'])
+                    logging.info('probe need for: %s' % m['caption'])
                     ls.probe_need(id, details['vehicles']['avalible'])
+                    sleep(2)
 
         sleep(30)
 
 
+def setup_logger(debug=False):
+    class StdOutFilter(logging.Filter):
+        def filter(self, rec):
+            return rec.levelno <= logging.INFO
+
+    logging.getLogger("").setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(levelname)s [%(asctime)s] %(message)s')
+
+    sout_handler = logging.StreamHandler(sys.stdout)
+    sout_handler.setLevel(logging.DEBUG if debug else logging.INFO)
+    sout_handler.setFormatter(formatter)
+    sout_handler.addFilter(StdOutFilter())
+
+    serr_handler = logging.StreamHandler(sys.stderr)
+    serr_handler.setLevel(logging.WARN)
+    serr_handler.setFormatter(formatter)
+
+    file_handler = logging.FileHandler('lsbot.log')
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+
+    logging.getLogger("").addHandler(sout_handler)
+    logging.getLogger("").addHandler(serr_handler)
+    logging.getLogger("").addHandler(file_handler)
+
+
 if __name__ == "__main__":
+    setup_logger(debug=True)
     main()
