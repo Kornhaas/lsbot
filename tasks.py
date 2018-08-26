@@ -129,6 +129,10 @@ def send_missing_cars(ls, db):
                         break
                 if not found_car:
                     need_help = True
+            if len(car_ids) > 0:
+                ls.send_cars_to_mission(m['id'], car_ids)
+                logging.info('sent cars to mission: %s' % m['caption'])
+                sleep(2)
             # todo deal with missing crew
             if need_help:
                 # todo open mission for verband
