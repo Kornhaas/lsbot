@@ -19,10 +19,10 @@ def main():
     ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
-    periodic_tasks: List[AbstractPeriodicTask] = [CrewHirer(),
-                                                  MissionGenerator(),
-                                                  MissionController(),
-                                                  ]
+    periodic_tasks = [CrewHirer(),
+                      MissionGenerator(),
+                      MissionController(),
+                      ]
 
     while True:
         for func in periodic_tasks:

@@ -8,13 +8,13 @@ class AbstractPeriodicTask:
     def __init__(self):
         raise NotImplementedError()
 
-    def get_name(self) -> str:
+    def get_name(self):
         raise NotImplementedError()
 
-    def get_wait_time(self) -> str:
+    def get_wait_time(self):
         raise NotImplementedError()
 
-    def run(self, ls: LeitstellenAPI, db: DBWrapper):
+    def run(self, ls, db):
         raise NotImplementedError()
 
 
