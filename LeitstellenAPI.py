@@ -21,7 +21,7 @@ class LeitstellenAPI:
     }
 
     def __init__(self, email, password):
-        with open('game_data.json') as d:
+        with open('game_data.json', encoding='utf-8') as d:
             self.data = json.load(d)
         self.email = email
         self.password = password
@@ -128,7 +128,7 @@ class LeitstellenAPI:
         if name in self.data['vehicle_type_names']:
             return self.data['vehicle_type_names'][name]
         else:
-            logging.warn('unknown vehicle name: %s' % name)
+            logging.warning('unknown vehicle name: %s' % name)
             return 'unknown'
 
     def probe_need(self, missionid, avalible_cars):

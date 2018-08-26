@@ -16,11 +16,6 @@ def main():
         with open('config.json') as cf:
             config = json.load(cf)
 
-    if 'email' not in config:
-        config['email'] = raw_input('Email: ')
-    if 'password' not in config:
-        config['password'] = raw_input('Passwort: ')
-
     ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
