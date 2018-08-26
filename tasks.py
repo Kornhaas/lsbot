@@ -1,4 +1,6 @@
 import logging
+from LeitstellenAPI import LeitstellenAPI
+from DBWrapper import DBWrapper
 from time import sleep
 
 
@@ -6,13 +8,13 @@ class AbstractPeriodicTask:
     def __init__(self):
         raise NotImplementedError()
 
-    def get_name(self):
+    def get_name(self) -> str:
         raise NotImplementedError()
 
-    def get_wait_time(self):
+    def get_wait_time(self) -> str:
         raise NotImplementedError()
 
-    def run(self, ls, db):
+    def run(self, ls: LeitstellenAPI, db: DBWrapper):
         raise NotImplementedError()
 
 

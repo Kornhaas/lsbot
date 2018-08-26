@@ -4,9 +4,7 @@ import json
 import sys
 from time import *
 import os.path
-from LeitstellenAPI import LeitstellenAPI
-from DBWrapper import DBWrapper
-import logging
+from typing import List
 from tasks import *
 
 
@@ -26,10 +24,10 @@ def main():
     ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
-    periodic_tasks = [CrewHirer(),
-                      MissionGenerator(),
-                      MissionController(),
-                      ]
+    periodic_tasks: List[AbstractPeriodicTask] = [CrewHirer(),
+                                                  MissionGenerator(),
+                                                  MissionController(),
+                                                  ]
 
     while True:
         for func in periodic_tasks:
