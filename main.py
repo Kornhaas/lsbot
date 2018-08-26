@@ -9,7 +9,7 @@ import logging
 import sqlite3
 
 
-class AbstractPeriodicFunction:
+class AbstractPeriodicTask:
     def __init__(self):
         raise NotImplementedError()
 
@@ -23,7 +23,7 @@ class AbstractPeriodicFunction:
         raise NotImplementedError()
 
 
-class CrewHirer(AbstractPeriodicFunction):
+class CrewHirer(AbstractPeriodicTask):
     def __init__(self):
         pass
 
@@ -41,7 +41,7 @@ class CrewHirer(AbstractPeriodicFunction):
                 ls.hire_crew(id, 3)
 
 
-class MissionGenerator(AbstractPeriodicFunction):
+class MissionGenerator(AbstractPeriodicTask):
     def __init__(self):
         pass
 
@@ -55,7 +55,7 @@ class MissionGenerator(AbstractPeriodicFunction):
         ls.generate_missions()
 
 
-class MissionController(AbstractPeriodicFunction):
+class MissionController(AbstractPeriodicTask):
     def __init__(self):
         self.last_missions = {}
 
@@ -115,9 +115,6 @@ class MissionController(AbstractPeriodicFunction):
                     sleep(2)
 
 
-periodic_functions = [CrewHirer(), MissionGenerator(), MissionController()]
-
-
 def main():
     # connect the db
     db = sqlite3.connect('lsbot.db')
@@ -139,8 +136,13 @@ def main():
     ls = LeitstellenAPI(config['email'], config['password'])
     ls.login()
 
+    periodic_tasks = [CrewHirer(),
+                      MissionGenerator(),
+                      MissionController(),
+                      ]
+
     while True:
-        for func in periodic_functions:
+        for func in periodic_tasks:
             c.execute('SELECT last_run FROM periodic_tasks WHERE name=?', (func.get_name(),))
             last_run = c.fetchone()
             if last_run is None or last_run[0] + func.get_wait_time() < time():
@@ -178,5 +180,5 @@ def setup_logger(debug=False):
 
 
 if __name__ == "__main__":
-    setup_logger(debug=False)
+    setup_logger(debug=True)
     main()
