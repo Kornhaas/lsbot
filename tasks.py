@@ -50,7 +50,7 @@ class MissionGenerator(AbstractPeriodicTask):
 
 class MissionController(AbstractPeriodicTask):
     def __init__(self):
-        self.last_missions = {}
+        pass
 
     def get_name(self):
         return 'CONTROL MISSIONS'
@@ -60,20 +60,26 @@ class MissionController(AbstractPeriodicTask):
 
     def run(self, ls, db):
         missions = ls.get_all_missions()
+
+        for key, m in missions.items():
+            if db.get_mission(m['id']) is None:
+                logging.info('new mission: %s' % m['caption'])
+                db.write_mission({'id': m['id'],
+                                   'name': m['caption'],
+                                   'status': 'NEW'})
+
+        db_missions = db.get_current_missions()
+        for m in db_missions:
+            if str(m['id']) not in missions.keys():
+                logging.info('finished mission: %s' % m['name'])
+                db.update_mission_status(m['id'], 'FINISHED')
+
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
         # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
         # todo better filter criteria
         for k in list(missions):
             if missions[k]['user_id'] != ls.user['id'] or missions[k]['sw']:
                 del missions[k]
-
-        for key, m in missions.items():
-            if key not in self.last_missions:
-                logging.info('new mission: %s' % m['caption'])
-        for key, m in self.last_missions.items():
-            if key not in missions:
-                logging.info('finished mission: %s' % m['caption'])
-        self.last_missions = missions
 
         for id, m in missions.items():
             details = ls.get_mission_details(id)
