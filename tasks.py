@@ -72,7 +72,7 @@ class MissionController(AbstractPeriodicTask):
         db_missions = db.get_current_missions()
         for m in db_missions:
             if str(m['id']) not in missions.keys():
-                logging.info('finished mission: %s' % m['name'])
+                logging.info('finished mission: %s' % m['caption'])
                 db.update_mission_status(m['id'], 'FINISHED')
 
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
