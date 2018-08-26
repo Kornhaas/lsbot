@@ -93,7 +93,7 @@ def load_missions_into_db(ls, db):
             m['status'] = "MISSING"
         elif m['vehicle_state'] == 2:
             m['status'] = "ONGOING"
-        elif dbm['status'] == 'NEW':
+        elif dbm is not None and dbm['status'] == 'NEW':
             m['status'] = 'NEW'
         elif 'status' not in m:
             logging.warning('UNKNOWN STATUS IN MISSION %s: "%s"' % (m['id'], m['caption']))
