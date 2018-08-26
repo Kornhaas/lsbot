@@ -7,9 +7,17 @@ class DBWrapper:
         self.c = self.db.cursor()
 
         # init db
-        self.c.execute('CREATE TABLE IF NOT EXISTS periodic_tasks (name TEXT PRIMARY KEY, last_run INTEGER);')
-        self.c.execute("CREATE TABLE IF NOT EXISTS missions (id INTEGER PRIMARY KEY, name TEXT,"
-                       "status TEXT CHECK(status in ('NEW','FINISHED')));")
+        self.c.execute("CREATE TABLE IF NOT EXISTS periodic_tasks (name TEXT PRIMARY KEY, last_run INTEGER);")
+        self.c.execute("""CREATE TABLE IF NOT EXISTS missions(
+                    id int primary key,
+                    caption TEXT,
+                    status TEXT default 'NEW' not null,
+                    user_id int,
+                    sw int,
+                    sw_start_in int,
+                    missing_text TEXT,
+                    check (status in ('NEW','MISSING','DRIVING','ONGOING','FINISHED'))
+                );""")
         self.db.commit()
 
     def get_task_last_run(self, task_name):
@@ -35,7 +43,9 @@ class DBWrapper:
         return self.c.fetchone()
 
     def write_mission(self, mission):
-        self.c.execute('INSERT OR REPLACE INTO missions(id, caption, status) VALUES(:id, :caption, :status)', mission)
+        self.c.execute('INSERT OR REPLACE INTO missions(id, caption, status, user_id, sw, sw_start_in, missing_text)'
+                       'VALUES(:id, :caption, :status, :user_id, :sw, :sw_start_in, :missing_text)',
+                       mission)
         self.db.commit()
 
     def update_mission_status(self, id, status):

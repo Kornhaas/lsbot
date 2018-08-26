@@ -63,17 +63,29 @@ class MissionController(AbstractPeriodicTask):
     def run(self, ls, db):
         missions = ls.get_all_missions()
 
-        for key, m in missions.items():
-            if db.get_mission(m['id']) is None:
-                logging.info('new mission: %s' % m['caption'])
-                m['status'] = 'NEW'
-                db.write_mission(m)
-
+        # if a previous mission isnt in the missions anymore, set its status in the db to finished
         db_missions = db.get_current_missions()
         for m in db_missions:
             if str(m['id']) not in missions.keys():
                 logging.info('finished mission: %s' % m['caption'])
                 db.update_mission_status(m['id'], 'FINISHED')
+
+        # add new missions to the db and update old ones
+        for key, m in missions.items():
+            dbm = db.get_mission(m['id'])
+            if dbm is None:
+                logging.info('new mission: %s' % m['caption'])
+                m['status'] = 'NEW'
+            if m['vehicle_state'] == 1:
+                m['status'] = "DRIVING"
+            elif m['missing_text'] is not None:
+                m['status'] = "MISSING"
+            elif m['vehicle_state'] == 2:
+                m['status'] = "ONGOING"
+            if 'status' not in m:
+                logging.warning('UNKNOWN STATUS IN MISSION %s: "%s"' % (m['id'], m['caption']))
+                m['status'] = "NEW"
+            db.write_mission(m)
 
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
         # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
