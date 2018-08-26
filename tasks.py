@@ -44,7 +44,7 @@ class MissionGenerator(AbstractPeriodicTask):
         return 'GENERATE MISSIONS'
 
     def get_wait_time(self):
-        return 10
+        return 20
 
     def run(self, ls, db):
         ls.generate_missions()
