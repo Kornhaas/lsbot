@@ -51,7 +51,7 @@ def setup_logger(debug=False):
     serr_handler.setLevel(logging.WARN)
     serr_handler.setFormatter(formatter)
 
-    file_handler = logging.FileHandler('lsbot.log')
+    file_handler = logging.FileHandler('lsbot.log', encoding='utf-8')
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
 
