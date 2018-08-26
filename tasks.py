@@ -64,9 +64,8 @@ class MissionController(AbstractPeriodicTask):
         for key, m in missions.items():
             if db.get_mission(m['id']) is None:
                 logging.info('new mission: %s' % m['caption'])
-                db.write_mission({'id': m['id'],
-                                   'name': m['caption'],
-                                   'status': 'NEW'})
+                m['status'] = 'NEW'
+                db.write_mission(m)
 
         db_missions = db.get_current_missions()
         for m in db_missions:

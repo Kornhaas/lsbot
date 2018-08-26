@@ -1,9 +1,9 @@
 import sqlite3
 
-
 class DBWrapper:
     def __init__(self, filename):
         self.db = sqlite3.connect(filename)
+        self.db.row_factory = sqlite3.Row
         self.c = self.db.cursor()
 
         # init db
@@ -24,18 +24,18 @@ class DBWrapper:
         self.db.commit()
 
     def get_current_missions(self):
-        self.c.execute("SELECT id, name, status FROM missions WHERE status IS NOT 'FINISHED'")
+        self.c.execute("SELECT id, caption, status FROM missions WHERE status IS NOT 'FINISHED'")
         result = self.c.fetchall()
         if result is None:
             return []
-        return [{'id': i[0], 'name': i[1], 'status': i[2]} for i in result]
+        return result
 
     def get_mission(self, id):
         self.c.execute("SELECT * FROM missions WHERE id=?", [id])
         return self.c.fetchone()
 
     def write_mission(self, mission):
-        self.c.execute('INSERT OR REPLACE INTO missions(id, name, status) VALUES(:id, :name, :status)', mission)
+        self.c.execute('INSERT OR REPLACE INTO missions(id, caption, status) VALUES(:id, :caption, :status)', mission)
         self.db.commit()
 
     def update_mission_status(self, id, status):
