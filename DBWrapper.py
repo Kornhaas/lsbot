@@ -32,7 +32,14 @@ class DBWrapper:
         self.db.commit()
 
     def get_current_missions(self):
-        self.c.execute("SELECT id, caption, status FROM missions WHERE status IS NOT 'FINISHED'")
+        self.c.execute("SELECT * FROM missions WHERE status IS NOT 'FINISHED'")
+        result = self.c.fetchall()
+        if result is None:
+            return []
+        return result
+
+    def get_missions_by_status(self, status):
+        self.c.execute("SELECT * FROM missions WHERE status=?", [status])
         result = self.c.fetchall()
         if result is None:
             return []
@@ -46,8 +53,4 @@ class DBWrapper:
         self.c.execute('INSERT OR REPLACE INTO missions(id, caption, status, user_id, sw, sw_start_in, missing_text)'
                        'VALUES(:id, :caption, :status, :user_id, :sw, :sw_start_in, :missing_text)',
                        mission)
-        self.db.commit()
-
-    def update_mission_status(self, id, status):
-        self.c.execute('UPDATE missions SET status=? WHERE id= ?', [status, id])
         self.db.commit()
