@@ -5,18 +5,13 @@ import sys
 from time import *
 import os.path
 from LeitstellenAPI import LeitstellenAPI
-import sqlite3
+from DBWrapper import DBWrapper
 import logging
 from tasks import *
 
 
 def main():
-    # connect the db
-    db = sqlite3.connect('lsbot.db')
-    # create all missing db tables
-    c = db.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS periodic_tasks (name TEXT PRIMARY KEY, last_run INTEGER);')
-    db.commit()
+    db = DBWrapper('lsbot.db')
 
     config = {}
     if os.path.isfile('config.json'):
@@ -38,13 +33,11 @@ def main():
 
     while True:
         for func in periodic_tasks:
-            c.execute('SELECT last_run FROM periodic_tasks WHERE name=?', (func.get_name(),))
-            last_run = c.fetchone()
-            if last_run is None or last_run[0] + func.get_wait_time() < time():
+            last_run = db.get_task_last_run(func.get_name())
+            if last_run is None or last_run + func.get_wait_time() < time():
                 logging.debug('running periodic task "%s"' % func.get_name())
                 func.run(ls, db)
-                c.execute('INSERT OR REPLACE INTO periodic_tasks(name, last_run) VALUES(?, ?)', (func.get_name(), time()))
-                db.commit()
+                db.write_task_last_run(func.get_name(), time())
 
 
 def setup_logger(debug=False):
