@@ -12,7 +12,7 @@ class AbstractPeriodicTask:
     def get_wait_time(self):
         raise NotImplementedError()
 
-    def run(self, ls):
+    def run(self, ls, db):
         raise NotImplementedError()
 
 
@@ -26,7 +26,7 @@ class CrewHirer(AbstractPeriodicTask):
     def get_wait_time(self):
         return 24*60*60
 
-    def run(self, ls):
+    def run(self, ls, db):
         logging.info('hire crew in every building')
         all_buildings = ls.get_all_buildings()
         for id, b in all_buildings.items():
@@ -44,7 +44,7 @@ class MissionGenerator(AbstractPeriodicTask):
     def get_wait_time(self):
         return 10
 
-    def run(self, ls):
+    def run(self, ls, db):
         ls.generate_missions()
 
 
@@ -58,7 +58,7 @@ class MissionController(AbstractPeriodicTask):
     def get_wait_time(self):
         return 30
 
-    def run(self, ls):
+    def run(self, ls, db):
         missions = ls.get_all_missions()
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
         # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)

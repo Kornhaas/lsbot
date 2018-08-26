@@ -42,7 +42,7 @@ def main():
             last_run = c.fetchone()
             if last_run is None or last_run[0] + func.get_wait_time() < time():
                 logging.debug('running periodic task "%s"' % func.get_name())
-                func.run(ls)
+                func.run(ls, db)
                 c.execute('INSERT OR REPLACE INTO periodic_tasks(name, last_run) VALUES(?, ?)', (func.get_name(), time()))
                 db.commit()
 
