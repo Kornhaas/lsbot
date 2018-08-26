@@ -28,7 +28,7 @@ class CrewHirer(AbstractPeriodicFunction):
         pass
 
     def get_name(self):
-        return 'CREW_HIRE'
+        return 'HIRE CREW'
 
     def get_wait_time(self):
         return 24*60*60
@@ -41,44 +41,31 @@ class CrewHirer(AbstractPeriodicFunction):
                 ls.hire_crew(id, 3)
 
 
-periodic_functions = [CrewHirer()]
+class MissionGenerator(AbstractPeriodicFunction):
+    def __init__(self):
+        pass
 
+    def get_name(self):
+        return 'GENERATE MISSIONS'
 
-def main():
-    # connect the db
-    db = sqlite3.connect('lsbot.db')
-    # create all missing db tables
-    c = db.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS periodic_tasks (id INTEGER PRIMARY KEY, name TEXT UNIQUE, last_run INTEGER);')
-    db.commit()
+    def get_wait_time(self):
+        return 10
 
-    config = {}
-    if os.path.isfile('config.json'):
-        with open('config.json') as cf:
-            config = json.load(cf)
-
-    if 'email' not in config:
-        config['email'] = raw_input('Email: ')
-    if 'password' not in config:
-        config['password'] = raw_input('Passwort: ')
-
-    ls = LeitstellenAPI(config['email'], config['password'])
-    ls.login()
-
-    last_missions = {}
-    while True:
-        logging.info('checking periodic tasks')
-        for func in periodic_functions:
-            c.execute('SELECT last_run FROM periodic_tasks WHERE name=?', (func.get_name(),))
-            last_run = c.fetchone()
-            if last_run is None or last_run[0] + func.get_wait_time() < time():
-                logging.info('running periodic task "%s"' % func.get_name())
-                func.run(ls)
-                c.execute('INSERT OR REPLACE INTO periodic_tasks(name, last_run) VALUES(?, ?)', (func.get_name(), time()))
-                db.commit()
-
+    def run(self, ls):
         ls.generate_missions()
 
+
+class MissionController(AbstractPeriodicFunction):
+    def __init__(self):
+        self.last_missions = {}
+
+    def get_name(self):
+        return 'CONTROL MISSIONS'
+
+    def get_wait_time(self):
+        return 30
+
+    def run(self, ls):
         missions = ls.get_all_missions()
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
         # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
@@ -88,12 +75,12 @@ def main():
                 del missions[k]
 
         for key, m in missions.items():
-            if key not in last_missions:
+            if key not in self.last_missions:
                 logging.info('new mission: %s' % m['caption'])
-        for key, m in last_missions.items():
+        for key, m in self.last_missions.items():
             if key not in missions:
                 logging.info('finished mission: %s' % m['caption'])
-        last_missions = missions
+        self.last_missions = missions
 
         for id, m in missions.items():
             details = ls.get_mission_details(id)
@@ -127,7 +114,40 @@ def main():
                     ls.probe_need(id, details['vehicles']['avalible'])
                     sleep(2)
 
-        sleep(30)
+
+periodic_functions = [CrewHirer(), MissionGenerator(), MissionController()]
+
+
+def main():
+    # connect the db
+    db = sqlite3.connect('lsbot.db')
+    # create all missing db tables
+    c = db.cursor()
+    c.execute('CREATE TABLE IF NOT EXISTS periodic_tasks (name TEXT PRIMARY KEY, last_run INTEGER);')
+    db.commit()
+
+    config = {}
+    if os.path.isfile('config.json'):
+        with open('config.json') as cf:
+            config = json.load(cf)
+
+    if 'email' not in config:
+        config['email'] = raw_input('Email: ')
+    if 'password' not in config:
+        config['password'] = raw_input('Passwort: ')
+
+    ls = LeitstellenAPI(config['email'], config['password'])
+    ls.login()
+
+    while True:
+        for func in periodic_functions:
+            c.execute('SELECT last_run FROM periodic_tasks WHERE name=?', (func.get_name(),))
+            last_run = c.fetchone()
+            if last_run is None or last_run[0] + func.get_wait_time() < time():
+                logging.debug('running periodic task "%s"' % func.get_name())
+                func.run(ls)
+                c.execute('INSERT OR REPLACE INTO periodic_tasks(name, last_run) VALUES(?, ?)', (func.get_name(), time()))
+                db.commit()
 
 
 def setup_logger(debug=False):
@@ -158,5 +178,5 @@ def setup_logger(debug=False):
 
 
 if __name__ == "__main__":
-    setup_logger(debug=True)
+    setup_logger(debug=False)
     main()
