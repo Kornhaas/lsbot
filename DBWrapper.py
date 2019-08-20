@@ -1,4 +1,6 @@
 import sqlite3
+import logging
+
 
 class DBWrapper:
     def __init__(self, filename):
@@ -35,7 +37,9 @@ class DBWrapper:
         self.c.execute("SELECT * FROM missions WHERE status IS NOT 'FINISHED'")
         result = self.c.fetchall()
         if result is None:
+        #    logging.debug('get_current_missions empty' )
             return []
+        #logging.debug('get_current_missions' + str(result))
         return result
 
     def get_missions_by_status(self, status):
@@ -43,10 +47,12 @@ class DBWrapper:
         result = self.c.fetchall()
         if result is None:
             return []
+        #logging.debug('get_missions_by_status' + str(result))
         return result
 
     def get_mission(self, id):
         self.c.execute("SELECT * FROM missions WHERE id=?", [id])
+        #logging.debug('get_mission' + str(self.c.fetchone()))
         return self.c.fetchone()
 
     def write_mission(self, mission):

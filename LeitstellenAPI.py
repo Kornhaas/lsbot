@@ -76,7 +76,6 @@ class LeitstellenAPI:
         mission = {'vehicles': {}}
         r = self.session.get('https://www.leitstellenspiel.de/missions/%s' % missionid)
         mission_page = BeautifulSoup(r.content, 'html.parser')
-
         mission['vehicles']['driving'] = mission_page.find('table', {'id': 'mission_vehicle_driving'}) is not None
         mission['vehicles']['at_mission'] = mission_page.find('table', {'id': 'mission_vehicle_at_mission'}) is not None
 
@@ -84,8 +83,10 @@ class LeitstellenAPI:
         vehicle_table = mission_page.find('table', {'id': 'vehicle_show_table_all'})
         if vehicle_table is not None:
             vehicle_rows = vehicle_table.find('tbody').find_all('tr')
+
             for tr in vehicle_rows:
                 type_id = tr.find('td', {'vehicle_type_id': True}).get('vehicle_type_id')
+
                 v = {'id': int(tr.get('id')[24:]),
                      'type_id': int(type_id),
                      'caption': tr.get('vehicle_caption'),
@@ -95,6 +96,8 @@ class LeitstellenAPI:
         return mission
 
     def send_cars_to_mission(self, missionid, car_ids):
+        logging.info('https://www.leitstellenspiel.de/missions/%s/alarm' % missionid)
+
         url = 'https://www.leitstellenspiel.de/missions/%s/alarm' % missionid
 
         data = {
@@ -103,6 +106,9 @@ class LeitstellenAPI:
             'next_mission': 0,
             'vehicle_ids[]': car_ids
         }
+
+        print (str(data))
+
         self.session.post(url, data=data)
 
     def generate_missions(self):
@@ -113,13 +119,32 @@ class LeitstellenAPI:
             logging.exception('error reloading missions')
 
     def parse_missing(self, missing_text):
+        logging.debug('Enter parse_missing %s' % missing_text)
         if missing_text is None:
             return None
-        vehicle_matches = re.findall('(?:[,:]) (\d+) ([^,()]*?)(?: \([^()]*\))?(?=,|$)', missing_text)
+        missing_text = missing_text.replace('Zusätzlich benötigte Fahrzeuge: ','')
+        missing_text = missing_text.replace('(GW-L2 Wasser, SW 1000, SW 2000 oder Ähnliches)','')
+
+        logging.debug('Enter missing_text %s' % missing_text)
+        missing_text = missing_text.replace('.','')
+        logging.debug('Enter missing_text %s' % missing_text)
+
+        #vehicle_matches = re.findall('(?:[,.:]) (\d+) ([^,()]*?)(?: \([^()]*\))?(?=,|$)', missing_text)
+        vehicles_matches = missing_text.split(",")
+        logging.debug('Enter missing_text %s' % len(vehicles_matches))
+
         result = []
-        for m in vehicle_matches:
-            vtype = self.lookup_vehicle_type_by_name(m[1])
-            for i in range(int(m[0])):
+
+        for carrequest in vehicles_matches:
+            print (carrequest)
+            #carrequest = re.sub(r'\([^)]*\)', '', carrequest)
+            #print ("Short " + carrequest)
+            vehicle_matches = carrequest.split()
+            logging.debug('Enter vehicle_matches %s' % vehicle_matches)
+            vtype = self.lookup_vehicle_type_by_name(vehicle_matches[1])
+            logging.debug('Enter vtype %s' % vtype)
+
+            for i in range(int(vehicle_matches[0])):
                 result.append(vtype)
         return result
 

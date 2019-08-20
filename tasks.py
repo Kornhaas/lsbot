@@ -61,10 +61,15 @@ class MissionController(AbstractPeriodicTask):
         return 30
 
     def run(self, ls, db):
+        print("load_missions_into_db")
         load_missions_into_db(ls, db)
+        print("probe_new_missions")
         probe_new_missions(ls, db)
+        print("load_missions_into_db")
         load_missions_into_db(ls, db)
+        print("send_missing_cars")
         send_missing_cars(ls, db)
+        print("load_missions_into_db")
         load_missions_into_db(ls, db)
 
 
@@ -102,26 +107,40 @@ def load_missions_into_db(ls, db):
 
 
 def probe_new_missions(ls, db):
+
     missions = db.get_missions_by_status('NEW')
+    print (str(missions))
     for m in missions:
         logging.info('probe need for: %s' % m['caption'])
         details = ls.get_mission_details(m['id'])
+        print (str(details))
         ls.probe_need(m['id'], details['vehicles']['avalible'])
         sleep(2)
 
 
 def send_missing_cars(ls, db):
+    print ("Enter send_missing_cars")
     missions = db.get_missions_by_status('MISSING')
+
     for m in missions:
+
+
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
         # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
         # todo better filter criteria
+
         if not m['sw'] and m['user_id'] == ls.user['id']:
+            print ("DEBUG" + str(m['id']))
             details = ls.get_mission_details(m['id'])
+
             avalible_cars = details['vehicles']['avalible']
+
             need_help = False
             car_ids = []
             missing = ls.parse_missing(m['missing_text'])
+            print ("DEBUG" + str(m['missing_text']))
+            print ("DEBUG" + str(missing))
+            
             for missing_type in missing:
                 type_ids = ls.lookup_vehicle_type_ids(missing_type)
                 found_car = False
@@ -141,5 +160,3 @@ def send_missing_cars(ls, db):
             if need_help:
                 # todo open mission for verband
                 pass
-
-
