@@ -116,7 +116,7 @@ def probe_new_missions(ls, db):
     for m in missions:
         logging.info('probe need for: %s' % m['caption'])
         details = ls.get_mission_details(m['id'])
-        print (str(details))
+        #print (str(details))
         ls.probe_need(m['id'], details['vehicles']['avalible'])
         sleep(2)
 

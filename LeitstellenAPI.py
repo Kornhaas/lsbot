@@ -122,6 +122,13 @@ class LeitstellenAPI:
         logging.debug('Enter parse_missing %s' % missing_text)
         if missing_text is None:
             return None
+
+        regex = r'^ Wir benötigen noch min. \w+ Feuerwehrleute.$'
+        if "Feuerwehrleute" in missing_text:
+            missing_text = re.sub(regex, '', missing_text)
+            logging.debug('Enter missing_text %s' % missing_text)
+            missing_text = missing_text + "1 Löschfahrzeug"
+
         missing_text = missing_text.replace('Zusätzlich benötigte Fahrzeuge: ','')
         missing_text = missing_text.replace('(GW-L2 Wasser, SW 1000, SW 2000 oder Ähnliches)','')
 
