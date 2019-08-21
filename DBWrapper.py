@@ -18,8 +18,11 @@ class DBWrapper:
                     sw int,
                     sw_start_in int,
                     missing_text TEXT,
-                    check (status in ('NEW','MISSING','DRIVING','ONGOING','FINISHED'))
+					prisoners_count int,
+					patients_count int,
+                    check (status in ('NEW','MISSING', 'MISSING_POL', 'MISSING_RTW','DRIVING','ONGOING','FINISHED'))
                 );""")
+				#Prisoners and patients count added to handle the cases
         self.db.commit()
 
     def get_task_last_run(self, task_name):

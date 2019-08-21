@@ -96,6 +96,10 @@ def load_missions_into_db(ls, db):
             m['status'] = "DRIVING"
         elif m['missing_text'] is not None:
             m['status'] = "MISSING"
+		elif m['prisoners_count'] != 0:
+            m['status'] = "MISSING_POL"
+        elif m['patients_count'] != 0:
+            m['status'] = "MISSING_RTW"
         elif m['vehicle_state'] == 2:
             m['status'] = "ONGOING"
         elif dbm is not None and dbm['status'] == 'NEW':
@@ -119,12 +123,11 @@ def probe_new_missions(ls, db):
 
 
 def send_missing_cars(ls, db):
-    print ("Enter send_missing_cars")
+	logging.Debug("Enter send_missing_cars")
+	logging.Debug("MISSING")
     missions = db.get_missions_by_status('MISSING')
 
     for m in missions:
-
-
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
         # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
         # todo better filter criteria
@@ -160,3 +163,72 @@ def send_missing_cars(ls, db):
             if need_help:
                 # todo open mission for verband
                 pass
+    logging.Debug("MISSING_RTW")
+	missions = db.get_missions_by_status('MISSING_RTW')
+
+    for m in missions:
+        # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
+        # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
+        # todo better filter criteria
+
+        if not m['sw'] and m['user_id'] == ls.user['id']:
+            print ("DEBUG" + str(m['id']))
+            details = ls.get_mission_details(m['id'])
+
+            avalible_cars = details['vehicles']['avalible']
+
+            need_help = False
+            car_ids = []
+            missing = ls.parse_missing_rtw(m['patients_count'])
+            print ("DEBUG" + str(m['patients_count']))
+            
+            for missing_type in missing:
+                type_ids = ls.lookup_vehicle_type_ids(missing_type)
+                found_car = False
+                for car in avalible_cars:
+                    if car['type_id'] in type_ids:
+                        car_ids.append(car['id'])
+                        avalible_cars.remove(car)
+                        found_car = True
+                        break
+                if not found_car:
+                    need_help = True
+            if len(car_ids) > 0:
+                ls.send_cars_to_mission(m['id'], car_ids)
+                logging.info('sent cars to mission: %s' % m['caption'])
+                sleep(2)
+				
+    logging.Debug("MISSING_POL")
+	missions = db.get_missions_by_status('MISSING_POL')
+
+    for m in missions:
+        # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
+        # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
+        # todo better filter criteria
+
+        if not m['sw'] and m['user_id'] == ls.user['id']:
+            print ("DEBUG" + str(m['id']))
+            details = ls.get_mission_details(m['id'])
+
+            avalible_cars = details['vehicles']['avalible']
+
+            need_help = False
+            car_ids = []
+            missing = ls.parse_missing_rtw(m['prisoners_count'])
+            print ("DEBUG" + str(m['prisoners_count']))
+            
+            for missing_type in missing:
+                type_ids = ls.lookup_vehicle_type_ids(missing_type)
+                found_car = False
+                for car in avalible_cars:
+                    if car['type_id'] in type_ids:
+                        car_ids.append(car['id'])
+                        avalible_cars.remove(car)
+                        found_car = True
+                        break
+                if not found_car:
+                    need_help = True
+            if len(car_ids) > 0:
+                ls.send_cars_to_mission(m['id'], car_ids)
+                logging.info('sent cars to mission: %s' % m['caption'])
+                sleep(2)

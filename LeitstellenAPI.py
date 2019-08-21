@@ -148,6 +148,28 @@ class LeitstellenAPI:
                 result.append(vtype)
         return result
 
+    def parse_missing_rtw(self, patients_count):
+        logging.debug('Enter parse_missing_rtw %s' % patients_count)
+        if patients_count == 0:
+            return None
+        vtype = self.lookup_vehicle_type_by_name("RTW")
+        logging.debug('Enter vtype %s' % vtype)
+
+            for i in patients_count:
+                result.append(vtype)
+        return result
+
+    def parse_missing_pol(self, prisoners_count):
+        logging.debug('Enter parse_missing_rtw %s' % patients_count)
+        if patients_count == 0:
+            return None
+        vtype = self.lookup_vehicle_type_by_name("FuStW")
+        logging.debug('Enter vtype %s' % vtype)
+
+            for i in patients_count:
+                result.append(vtype)
+        return result
+		
     def lookup_vehicle_type_by_name(self, name):
         if name in self.data['vehicle_type_names']:
             return self.data['vehicle_type_names'][name]
