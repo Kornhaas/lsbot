@@ -96,7 +96,7 @@ def load_missions_into_db(ls, db):
             m['status'] = "DRIVING"
         elif m['missing_text'] is not None:
             m['status'] = "MISSING"
-		elif m['prisoners_count'] != 0:
+        elif m['prisoners_count'] != 0:
             m['status'] = "MISSING_POL"
         elif m['patients_count'] != 0:
             m['status'] = "MISSING_RTW"
@@ -111,7 +111,6 @@ def load_missions_into_db(ls, db):
 
 
 def probe_new_missions(ls, db):
-
     missions = db.get_missions_by_status('NEW')
     print (str(missions))
     for m in missions:
@@ -123,8 +122,8 @@ def probe_new_missions(ls, db):
 
 
 def send_missing_cars(ls, db):
-	logging.Debug("Enter send_missing_cars")
-	logging.Debug("MISSING")
+    #logging.Debug("Enter send_missing_cars")
+    #logging.Debug("MISSING")
     missions = db.get_missions_by_status('MISSING')
 
     for m in missions:
@@ -143,7 +142,7 @@ def send_missing_cars(ls, db):
             missing = ls.parse_missing(m['missing_text'])
             print ("DEBUG" + str(m['missing_text']))
             print ("DEBUG" + str(missing))
-            
+
             for missing_type in missing:
                 type_ids = ls.lookup_vehicle_type_ids(missing_type)
                 found_car = False
@@ -160,11 +159,11 @@ def send_missing_cars(ls, db):
                 logging.info('sent cars to mission: %s' % m['caption'])
                 sleep(2)
             # todo deal with missing crew
-            if need_help:
+            #if need_help:
                 # todo open mission for verband
-                pass
-    logging.Debug("MISSING_RTW")
-	missions = db.get_missions_by_status('MISSING_RTW')
+            #    pass
+    #logging.Debug("MISSING_RTW")
+    missions = db.get_missions_by_status('MISSING_RTW')
 
     for m in missions:
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
@@ -181,7 +180,7 @@ def send_missing_cars(ls, db):
             car_ids = []
             missing = ls.parse_missing_rtw(m['patients_count'])
             print ("DEBUG" + str(m['patients_count']))
-            
+
             for missing_type in missing:
                 type_ids = ls.lookup_vehicle_type_ids(missing_type)
                 found_car = False
@@ -197,9 +196,9 @@ def send_missing_cars(ls, db):
                 ls.send_cars_to_mission(m['id'], car_ids)
                 logging.info('sent cars to mission: %s' % m['caption'])
                 sleep(2)
-				
-    logging.Debug("MISSING_POL")
-	missions = db.get_missions_by_status('MISSING_POL')
+
+    #logging.Debug("MISSING_POL")
+    missions = db.get_missions_by_status('MISSING_POL')
 
     for m in missions:
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
@@ -216,7 +215,7 @@ def send_missing_cars(ls, db):
             car_ids = []
             missing = ls.parse_missing_rtw(m['prisoners_count'])
             print ("DEBUG" + str(m['prisoners_count']))
-            
+
             for missing_type in missing:
                 type_ids = ls.lookup_vehicle_type_ids(missing_type)
                 found_car = False
