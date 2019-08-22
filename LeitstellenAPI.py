@@ -122,6 +122,13 @@ class LeitstellenAPI:
         logging.debug('Enter parse_missing %s' % missing_text)
         if missing_text is None:
             return None
+
+        regex = r'^ Wir benötigen noch min. \w+ Feuerwehrleute.$'
+        if "Feuerwehrleute" in missing_text:
+            missing_text = re.sub(regex, '', missing_text)
+            logging.debug('Enter missing_text %s' % missing_text)
+            missing_text = missing_text + "1 Löschfahrzeug"
+
         missing_text = missing_text.replace('Zusätzlich benötigte Fahrzeuge: ','')
         missing_text = missing_text.replace('(GW-L2 Wasser, SW 1000, SW 2000 oder Ähnliches)','')
 
@@ -155,21 +162,21 @@ class LeitstellenAPI:
         vtype = self.lookup_vehicle_type_by_name("RTW")
         logging.debug('Enter vtype %s' % vtype)
 
-            for i in patients_count:
-                result.append(vtype)
+        for i in range(patients_count):
+            result.append(vtype)
         return result
 
     def parse_missing_pol(self, prisoners_count):
-        logging.debug('Enter parse_missing_rtw %s' % patients_count)
+        logging.debug('Enter parse_missing_pol %s' % prisoners_count)
         if patients_count == 0:
             return None
         vtype = self.lookup_vehicle_type_by_name("FuStW")
         logging.debug('Enter vtype %s' % vtype)
 
-            for i in patients_count:
-                result.append(vtype)
+        for i in range(prisoners_count):
+            result.append(vtype)
         return result
-		
+
     def lookup_vehicle_type_by_name(self, name):
         if name in self.data['vehicle_type_names']:
             return self.data['vehicle_type_names'][name]

@@ -20,7 +20,7 @@ class DBWrapper:
                     missing_text TEXT,
 					prisoners_count int,
 					patients_count int,
-                    check (status in ('NEW','MISSING', 'MISSING_POL', 'MISSING_RTW','DRIVING','ONGOING','FINISHED'))
+                    check (status in ('NEW','MISSING','MISSING_POL','MISSING_RTW','DRIVING','ONGOING','FINISHED'))
                 );""")
 				#Prisoners and patients count added to handle the cases
         self.db.commit()
