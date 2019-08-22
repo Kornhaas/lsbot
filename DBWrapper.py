@@ -59,7 +59,7 @@ class DBWrapper:
         return self.c.fetchone()
 
     def write_mission(self, mission):
-        self.c.execute('INSERT OR REPLACE INTO missions(id, caption, status, user_id, sw, sw_start_in, missing_text)'
-                       'VALUES(:id, :caption, :status, :user_id, :sw, :sw_start_in, :missing_text)',
+        self.c.execute('INSERT OR REPLACE INTO missions(id, caption, status, user_id, sw, sw_start_in, missing_text, prisoners_count, patients_count)'
+                       'VALUES(:id, :caption, :status, :user_id, :sw, :sw_start_in, :missing_text, :prisoners_count, :patients_count)',
                        mission)
         self.db.commit()

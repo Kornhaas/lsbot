@@ -123,11 +123,18 @@ class LeitstellenAPI:
         if missing_text is None:
             return None
 
-        regex = r'^ Wir benötigen noch min. \w+ Feuerwehrleute.$'
+        #regex = r'^ Wir benötigen noch min. \w+ Feuerwehrleute.$'
+        regex = r'(\w+|\s)(Wir benötigen noch min. \w+ Feuerwehrleute.$)'
         if "Feuerwehrleute" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
-            logging.debug('Enter missing_text %s' % missing_text)
-            missing_text = missing_text + "1 Löschfahrzeug"
+            logging.debug('Replaced Text for Feuerwehrleute %s' % missing_text)
+            missing_text = missing_text + "1 Löschfahrzeug,"
+
+        regex = r'(\w+ l. Wasser)'
+        if "l. Wasse" in missing_text:
+            missing_text = re.sub(regex, '', missing_text)
+            logging.debug('Replaced Text for l wasser  %s' % missing_text)
+            missing_text = missing_text + "1 Löschfahrzeug,"
 
         missing_text = missing_text.replace('Zusätzlich benötigte Fahrzeuge: ','')
         missing_text = missing_text.replace('(GW-L2 Wasser, SW 1000, SW 2000 oder Ähnliches)','')
@@ -137,8 +144,11 @@ class LeitstellenAPI:
         logging.debug('Enter missing_text %s' % missing_text)
 
         #vehicle_matches = re.findall('(?:[,.:]) (\d+) ([^,()]*?)(?: \([^()]*\))?(?=,|$)', missing_text)
+        if missing_text.endswith(','):
+            missing_text = missing_text[:-1]
+
         vehicles_matches = missing_text.split(",")
-        logging.debug('Enter missing_text %s' % len(vehicles_matches))
+        logging.debug('Number of found vehicles: %s' % len(vehicles_matches))
 
         result = []
 
@@ -148,6 +158,11 @@ class LeitstellenAPI:
             #print ("Short " + carrequest)
             vehicle_matches = carrequest.split()
             logging.debug('Enter vehicle_matches %s' % vehicle_matches)
+
+            #Special Handling for ELW 1 or ELW 2
+            if vehicle_matches[1] == "ELW":
+                vehicle_matches[1] = vehicle_matches[1] + " " +vehicle_matches[2]
+
             vtype = self.lookup_vehicle_type_by_name(vehicle_matches[1])
             logging.debug('Enter vtype %s' % vtype)
 
@@ -159,6 +174,7 @@ class LeitstellenAPI:
         logging.debug('Enter parse_missing_rtw %s' % patients_count)
         if patients_count == 0:
             return None
+        result = []
         vtype = self.lookup_vehicle_type_by_name("RTW")
         logging.debug('Enter vtype %s' % vtype)
 
@@ -170,6 +186,7 @@ class LeitstellenAPI:
         logging.debug('Enter parse_missing_pol %s' % prisoners_count)
         if patients_count == 0:
             return None
+        result = []
         vtype = self.lookup_vehicle_type_by_name("FuStW")
         logging.debug('Enter vtype %s' % vtype)
 
@@ -178,6 +195,7 @@ class LeitstellenAPI:
         return result
 
     def lookup_vehicle_type_by_name(self, name):
+        logging.debug('Enter lookup_vehicle_type_by_name %s' % name)
         if name in self.data['vehicle_type_names']:
             return self.data['vehicle_type_names'][name]
         else:

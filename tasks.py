@@ -112,7 +112,6 @@ def load_missions_into_db(ls, db):
 
 def probe_new_missions(ls, db):
     missions = db.get_missions_by_status('NEW')
-    print (str(missions))
     for m in missions:
         logging.info('probe need for: %s' % m['caption'])
         details = ls.get_mission_details(m['id'])
