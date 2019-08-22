@@ -132,7 +132,7 @@ class LeitstellenAPI:
         regex = r'(\w+ l. Wasser)'
         if "l. Wasser" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
-            missing_text = missing_text + ", 1 Löschfahrzeug (LF),"
+            missing_text = missing_text + ", 5 Löschfahrzeug (LF),"
 
         missing_text = missing_text.replace('Zusätzlich benötigte Fahrzeuge: ','')
         missing_text = missing_text.replace('(GW-L2 Wasser, SW 1000, SW 2000 oder Ähnliches)','')

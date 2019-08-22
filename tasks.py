@@ -120,6 +120,8 @@ def probe_new_missions(ls, db):
     missions = db.get_missions_by_status('NEW')
     for m in missions:
         logging.info('probe need for: %s' % m['caption'])
+        if m['user_id'] is None or m['user_id'] is "" or m['user_id'] is " ":
+            continue
         details = ls.get_mission_details(m['id'])
         #print (str(details))
         ls.probe_need(m['id'], details['vehicles']['avalible'])
