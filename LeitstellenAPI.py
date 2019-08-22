@@ -127,19 +127,16 @@ class LeitstellenAPI:
         regex = r'(\w+|\s)(Wir benötigen noch min. \w+ Feuerwehrleute.$)'
         if "Feuerwehrleute" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
-            logging.debug('Replaced Text for Feuerwehrleute %s' % missing_text)
             missing_text = missing_text + "1 Löschfahrzeug,"
 
         regex = r'(\w+ l. Wasser)'
         if "l. Wasse" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
-            logging.debug('Replaced Text for l wasser  %s' % missing_text)
             missing_text = missing_text + "1 Löschfahrzeug,"
 
         missing_text = missing_text.replace('Zusätzlich benötigte Fahrzeuge: ','')
         missing_text = missing_text.replace('(GW-L2 Wasser, SW 1000, SW 2000 oder Ähnliches)','')
 
-        logging.debug('Enter missing_text %s' % missing_text)
         missing_text = missing_text.replace('.','')
         logging.debug('Enter missing_text %s' % missing_text)
 
@@ -148,16 +145,11 @@ class LeitstellenAPI:
             missing_text = missing_text[:-1]
 
         vehicles_matches = missing_text.split(",")
-        logging.debug('Number of found vehicles: %s' % len(vehicles_matches))
 
         result = []
 
         for carrequest in vehicles_matches:
-            print (carrequest)
-            #carrequest = re.sub(r'\([^)]*\)', '', carrequest)
-            #print ("Short " + carrequest)
             vehicle_matches = carrequest.split()
-            logging.debug('Enter vehicle_matches %s' % vehicle_matches)
 
             #Special Handling for ELW 1 or ELW 2
             if vehicle_matches[1] == "ELW":

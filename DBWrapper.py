@@ -20,6 +20,7 @@ class DBWrapper:
                     missing_text TEXT,
 					prisoners_count int,
 					patients_count int,
+					i,
                     check (status in ('NEW','MISSING','MISSING_POL','MISSING_RTW','DRIVING','ONGOING','FINISHED'))
                 );""")
 				#Prisoners and patients count added to handle the cases
@@ -59,7 +60,7 @@ class DBWrapper:
         return self.c.fetchone()
 
     def write_mission(self, mission):
-        self.c.execute('INSERT OR REPLACE INTO missions(id, caption, status, user_id, sw, sw_start_in, missing_text, prisoners_count, patients_count)'
-                       'VALUES(:id, :caption, :status, :user_id, :sw, :sw_start_in, :missing_text, :prisoners_count, :patients_count)',
+        self.c.execute('INSERT OR REPLACE INTO missions(id, caption, status, user_id, sw, sw_start_in, missing_text, prisoners_count, patients_count, icon)'
+                       'VALUES(:id, :caption, :status, :user_id, :sw, :sw_start_in, :missing_text, :prisoners_count, :patients_count, :icon)',
                        mission)
         self.db.commit()

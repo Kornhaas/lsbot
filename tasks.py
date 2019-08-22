@@ -94,11 +94,11 @@ def load_missions_into_db(ls, db):
             m['status'] = 'NEW'
         if m['vehicle_state'] == 1:
             m['status'] = "DRIVING"
-        elif m['missing_text'] is not None:
+        elif m['missing_text'] is not None and "red" not in m['icon']:
             m['status'] = "MISSING"
-        elif m['prisoners_count'] != 0:
+        elif m['prisoners_count'] != 0 and "red" not in m['icon']:
             m['status'] = "MISSING_POL"
-        elif m['patients_count'] != 0:
+        elif m['patients_count'] != 0 and "red" not in m['icon']:
             m['status'] = "MISSING_RTW"
         elif m['vehicle_state'] == 2:
             m['status'] = "ONGOING"
