@@ -124,31 +124,38 @@ class LeitstellenAPI:
             return None
 
         #regex = r'^ Wir benötigen noch min. \w+ Feuerwehrleute.$'
-        regex = r'(\w+|\s)(Wir benötigen noch min. \w+ Feuerwehrleute.$)'
+        regex = r'(Wir benötigen noch min. \w+ Feuerwehrleute.$)'
         if "Feuerwehrleute" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
-            missing_text = missing_text + "1 Löschfahrzeug,"
+            missing_text = missing_text + ", 1 Löschfahrzeug (LF),"
 
         regex = r'(\w+ l. Wasser)'
-        if "l. Wasse" in missing_text:
+        if "l. Wasser" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
-            missing_text = missing_text + "1 Löschfahrzeug,"
+            missing_text = missing_text + ", 1 Löschfahrzeug (LF),"
 
         missing_text = missing_text.replace('Zusätzlich benötigte Fahrzeuge: ','')
         missing_text = missing_text.replace('(GW-L2 Wasser, SW 1000, SW 2000 oder Ähnliches)','')
 
         missing_text = missing_text.replace('.','')
-        logging.debug('Enter missing_text %s' % missing_text)
+        missing_text = missing_text.replace(',,',',')
 
         #vehicle_matches = re.findall('(?:[,.:]) (\d+) ([^,()]*?)(?: \([^()]*\))?(?=,|$)', missing_text)
         if missing_text.endswith(','):
             missing_text = missing_text[:-1]
 
-        vehicles_matches = missing_text.split(",")
 
+        logging.debug('Enter missing_text :%s' % missing_text)
+
+        vehicles_matches = missing_text.split(",")
+        logging.debug('Enter vehicles_matches :%s' % str(vehicles_matches))
         result = []
 
         for carrequest in vehicles_matches:
+
+            if str(carrequest) is " " or str(carrequest) is "" or str(carrequest) is None :
+                continue
+
             vehicle_matches = carrequest.split()
 
             #Special Handling for ELW 1 or ELW 2
@@ -167,22 +174,31 @@ class LeitstellenAPI:
         if patients_count == 0:
             return None
         result = []
-        vtype = self.lookup_vehicle_type_by_name("RTW")
+
+        carrequest = str(patients_count) + " RTW"
+        vehicle_matches = carrequest.split()
+
+        vtype = self.lookup_vehicle_type_by_name(vehicle_matches[1])
         logging.debug('Enter vtype %s' % vtype)
 
-        for i in range(patients_count):
+        for i in range(int(vehicle_matches[0])):
             result.append(vtype)
         return result
 
+
     def parse_missing_pol(self, prisoners_count):
         logging.debug('Enter parse_missing_pol %s' % prisoners_count)
-        if patients_count == 0:
+        if prisoners_count == 0:
             return None
         result = []
-        vtype = self.lookup_vehicle_type_by_name("FuStW")
+
+        carrequest = str(prisoners_count) + " FuStW"
+        vehicle_matches = carrequest.split()
+
+        vtype = self.lookup_vehicle_type_by_name(vehicle_matches[1])
         logging.debug('Enter vtype %s' % vtype)
 
-        for i in range(prisoners_count):
+        for i in range(int(vehicle_matches[0])):
             result.append(vtype)
         return result
 

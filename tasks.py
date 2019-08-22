@@ -92,10 +92,16 @@ def load_missions_into_db(ls, db):
         if dbm is None:
             logging.info('new mission: %s' % m['caption'])
             m['status'] = 'NEW'
+
+
         if m['vehicle_state'] == 1:
             m['status'] = "DRIVING"
         elif m['missing_text'] is not None and "red" not in m['icon']:
-            m['status'] = "MISSING"
+            if m['user_id'] is not None:
+                m['status'] = "MISSING"
+            else:
+                m['status'] = 'NEW'
+            #        print("Handking for community event missing")
         elif m['prisoners_count'] != 0 and "red" not in m['icon']:
             m['status'] = "MISSING_POL"
         elif m['patients_count'] != 0 and "red" not in m['icon']:
