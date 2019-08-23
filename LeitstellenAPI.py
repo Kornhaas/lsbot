@@ -72,6 +72,16 @@ class LeitstellenAPI:
             buildings[building['id']] = building
         return buildings
 
+    def get_all_radiodata(self):
+        r = self.session.get('https://www.leitstellenspiel.de/')
+        radioMessage_json = re.findall('radioMessage\((.*?)\);', r.text)
+        radioMessage = {}
+        for b in radioMessage_json:
+            radioMessage = json.loads(b)
+            #radioMessage['id'] = str(radioMessage['id'])
+            #radioMessage[radioMessage['id']] = radioMessage
+        return radioMessage
+
     def get_mission_details(self, missionid):
         mission = {'vehicles': {}}
         r = self.session.get('https://www.leitstellenspiel.de/missions/%s' % missionid)
@@ -106,8 +116,6 @@ class LeitstellenAPI:
             'next_mission': 0,
             'vehicle_ids[]': car_ids
         }
-
-        print (str(data))
 
         self.session.post(url, data=data)
 
@@ -232,6 +240,25 @@ class LeitstellenAPI:
     def share_mission_in_alliance(self, missionid):
         logging.debug('Enter share_mission_in_alliance %s' % missionid)
         self.session.get('https://www.leitstellenspiel.de/missions/%s/alliance' % missionid)
+
+    def send_release_prisoner(self, missionid):
+        logging.info('https://www.leitstellenspiel.de/missions/%s/gefangene/entlassen' % missionid)
+        url = 'https://www.leitstellenspiel.de/missions/%s/gefangene/entlassen' % missionid
+        data = {
+            'authenticity_token': self.authenticity_token
+        }
+        self.session.post(url, data=data)
+
+
+
+    def send_release_patient(self, carid):
+        logging.info('https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid)
+        self.session.get('https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid)
+    #    url = 'https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid
+    #    data = {
+    #        'authenticity_token': self.authenticity_token
+    #    }
+    #    self.session.post(url, data=data)
 
     def lookup_vehicle_type_ids(self, type):
         if type in self.data['vehicle_type_ids']:

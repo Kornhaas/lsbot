@@ -1,4 +1,5 @@
 import logging
+import json
 from LeitstellenAPI import LeitstellenAPI
 from DBWrapper import DBWrapper
 from time import sleep
@@ -78,12 +79,14 @@ def load_missions_into_db(ls, db):
 
     # if a previous mission isnt in the missions anymore, set its status in the db to finished
     db_missions = db.get_current_missions()
+
     for m in db_missions:
         if str(m['id']) not in missions.keys():
             logging.info('finished mission: %s' % m['caption'])
             m = dict(m)
             m['status'] = 'FINISHED'
             m['missing_text'] = None
+            m['missing_text_short'] = None
             db.write_mission(m)
 
     # add new missions to the db and update old ones
@@ -133,12 +136,28 @@ def send_missing_cars(ls, db):
     #logging.Debug("MISSING")
     missions = db.get_missions_by_status('MISSING')
 
+    # check for prisoners call
+    for m in missions:
+         #Gefangene sollen abtransportiert werden.
+        if "abtransportiert" in m['missing_text']:
+            logging.debug('Enter gefangene/entlassen %s' % m['id'])
+            ls.send_release_prisoner(m['id'])
+
+    # check for radiomessages
+    for m in missions:
+        radiodata = ls.get_all_radiodata()
+        if len(radiodata) != 0:
+            for key, r in radiodata.items():
+                if key == 'id':
+                    logging.debug('Patient entlassen %s' % m['id'])
+                    ls.send_release_patient(r)
+
     for m in missions:
         # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
         # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
         # todo better filter criteria
 
-        if not m['sw'] and m['user_id'] == ls.user['id']:
+        if not m['sw'] and m['user_id'] == ls.user['id'] and "abtransportiert" not in m['missing_text']:
             print ("DEBUG" + str(m['id']))
             details = ls.get_mission_details(m['id'])
 
@@ -177,6 +196,19 @@ def send_missing_cars(ls, db):
         # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
         # todo better filter criteria
 
+        #logging.debug('Radiomessage: ' + str(m)) # Sprechwunsch
+        # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
+        # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
+        # todo better filter criteria
+    #    print ("DEBUG:" + str(m['id']))
+
+
+    #    if m['missing_text_short'] is not None:
+    #        patient = ls.get_all_patient(m['id']
+
+    #        ls.send_release_patient(carid)
+
+    #    quit()
         if not m['sw'] and m['user_id'] == ls.user['id']:
             print ("DEBUG" + str(m['id']))
             details = ls.get_mission_details(m['id'])
