@@ -144,6 +144,7 @@ class LeitstellenAPI:
 
         missing_text = missing_text.replace('.','')
         missing_text = missing_text.replace(',,',',')
+        missing_text = missing_text.replace(',  ,',',')
 
         #vehicle_matches = re.findall('(?:[,.:]) (\d+) ([^,()]*?)(?: \([^()]*\))?(?=,|$)', missing_text)
         if missing_text.endswith(','):
