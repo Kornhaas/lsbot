@@ -129,6 +129,11 @@ class LeitstellenAPI:
             missing_text = re.sub(regex, '', missing_text)
             missing_text = missing_text + ", 1 Löschfahrzeug (LF),"
 
+        regex = r'(Wir benötigen noch min. \w+ Feuerwehrmann.$)'
+        if "Feuerwehrleute" in missing_text:
+            missing_text = re.sub(regex, '', missing_text)
+            missing_text = missing_text + ", 1 Löschfahrzeug (LF),"
+
         regex = r'(\w+ l. Wasser)'
         if "l. Wasser" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
