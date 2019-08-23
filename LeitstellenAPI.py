@@ -224,15 +224,14 @@ class LeitstellenAPI:
         self.send_cars_to_mission(missionid, [carid])
         sleep(2)
         self.recall_car_from_mission(carid)
-        self.share_mission_in_aliance(missionid)
+        self.share_mission_in_alliance(missionid)
 
     def recall_car_from_mission(self, carid):
         self.session.get('https://www.leitstellenspiel.de/vehicles/%s/backalarm?return=mission' % carid)
 
-    def share_mission_in_aliance(self, missionid):
-        logging.debug('Enter share_mission_in_aliance %s' % missionid)
-        self.session.get('https://www.leitstellenspiel.de/missions/%s/aliance' % missionid)
-
+    def share_mission_in_alliance(self, missionid):
+        logging.debug('Enter share_mission_in_alliance %s' % missionid)
+        self.session.get('https://www.leitstellenspiel.de/missions/%s/alliance' % missionid)
 
     def lookup_vehicle_type_ids(self, type):
         if type in self.data['vehicle_type_ids']:
