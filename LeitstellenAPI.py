@@ -137,7 +137,7 @@ class LeitstellenAPI:
         regex = r'(\w+ l. Wasser)'
         if "l. Wasser" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
-            missing_text = missing_text + ", 5 Löschfahrzeug (LF),"
+            missing_text = missing_text + ", 2 Tanklöschfahrzeuge (TLF),"
 
         missing_text = missing_text.replace('Zusätzlich benötigte Fahrzeuge: ','')
         missing_text = missing_text.replace('(GW-L2 Wasser, SW 1000, SW 2000 oder Ähnliches)','')
@@ -224,9 +224,15 @@ class LeitstellenAPI:
         self.send_cars_to_mission(missionid, [carid])
         sleep(2)
         self.recall_car_from_mission(carid)
+        self.share_mission_in_aliance(missionid)
 
     def recall_car_from_mission(self, carid):
         self.session.get('https://www.leitstellenspiel.de/vehicles/%s/backalarm?return=mission' % carid)
+
+    def share_mission_in_aliance(self, missionid):
+        logging.debug('Enter share_mission_in_aliance %s' % missionid)
+        self.session.get('https://www.leitstellenspiel.de/missions/%s/aliance' % missionid)
+
 
     def lookup_vehicle_type_ids(self, type):
         if type in self.data['vehicle_type_ids']:
