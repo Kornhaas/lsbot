@@ -203,9 +203,13 @@ def send_missing_cars(ls, db):
             patientdata = ls.get_all_patientdata(m['id'])
             print ("DEBUG:" + str(patientdata))
 
+            patient_missing_text = None
+
+#            for id, p in patientdata.items():
+            print(len(patientdata) )
             if len(patientdata) != 0:
                 print (str(patientdata['name']))
-                if "None" in str(patientdata['missing_text']) and int(patientdata['target_percent']) == 0:
+                if "None" in str(patientdata['missing_text']) and int(patientdata['target_percent']) == 0 and "gruen" not in m['icon']:
                     patient_missing_text = " 1 RTW (RTW),"
                     logging.debug('Patient Nachforderung %s' % str(patient_missing_text))
                 if "RTW" in str(patientdata['missing_text']):
@@ -218,28 +222,32 @@ def send_missing_cars(ls, db):
                     patient_missing_text = " 1 NEF (NEF),"
                     logging.debug('Patient Nachforderung %s' % str(patient_missing_text))
 
-                avalible_cars = details['vehicles']['avalible']
 
-                need_help = False
-                car_ids = []
-                missing = ls.parse_missing(patient_missing_text)
-                print ("DEBUG" + str(missing))
+                if patient_missing_text is not None:
+                    print ("DEBUG:patient_missing_text in locals()")
+                    avalible_cars = details['vehicles']['avalible']
 
-                for missing_type in missing:
-                    type_ids = ls.lookup_vehicle_type_ids(missing_type)
-                    found_car = False
-                    for car in avalible_cars:
-                        if car['type_id'] in type_ids:
-                            car_ids.append(car['id'])
-                            avalible_cars.remove(car)
-                            found_car = True
-                            break
-                    if not found_car:
-                        need_help = True
-                if len(car_ids) > 0:
-                    ls.send_cars_to_mission(m['id'], car_ids)
-                    logging.info('sent cars to mission: %s' % m['caption'])
-                    sleep(2)
+                    need_help = False
+                    car_ids = []
+                    missing = ls.parse_missing(patient_missing_text)
+                    print ("DEBUG" + str(missing))
+
+                    for missing_type in missing:
+                        print ("DEBUG" + str(missing_type))
+                        type_ids = ls.lookup_vehicle_type_ids(missing_type)
+                        found_car = False
+                        for car in avalible_cars:
+                            if car['type_id'] in type_ids:
+                                car_ids.append(car['id'])
+                                avalible_cars.remove(car)
+                                found_car = True
+                                break
+                        if not found_car:
+                            need_help = True
+                    if len(car_ids) > 0:
+                        ls.send_cars_to_mission(m['id'], car_ids)
+                        logging.info('sent cars to mission: %s' % m['caption'])
+                        sleep(2)
 
     #logging.Debug("MISSING_POL")
     missions = db.get_missions_by_status('MISSING_POL')

@@ -76,20 +76,20 @@ class LeitstellenAPI:
         r = self.session.get('https://www.leitstellenspiel.de/')
         radioMessage_json = re.findall('radioMessage\((.*?)\);', r.text)
         radioMessage = {}
-        for b in radioMessage_json:
-            radioMessage = json.loads(b)
+        for r in radioMessage_json:
+            radioMessage = json.loads(r)
             #radioMessage['id'] = str(radioMessage['id'])
             #radioMessage[radioMessage['id']] = radioMessage
         return radioMessage
 
     def get_all_patientdata(self, missionid):
-        r = self.session.get('https://www.leitstellenspiel.de/missions/%s' % missionid)
-        patient_json = re.findall('patientBarColor\((.*?)\);', r.text)
+        p = self.session.get('https://www.leitstellenspiel.de/missions/%s' % missionid)
+        patient_json = re.findall('patientBarColor\((.*?)\);', p.text)
         patient = {}
-        for b in patient_json:
-            patient = json.loads(b)
-            #radioMessage['id'] = str(radioMessage['id'])
-            #radioMessage[radioMessage['id']] = radioMessage
+        for p in patient_json:
+            patient = json.loads(p)
+            patient['id'] = str(patient['id'])
+            patient[patient['id']] = patient
         return patient
 
 
