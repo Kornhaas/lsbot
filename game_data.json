@@ -17,7 +17,9 @@
     "GW-Öl": "GW-OL",
     "RTW oder KTW oder KTW-B": "RTW",
     "RTW": "RTW",
-    "NEF": "NEF"
+    "NEF": "NEF",
+    "GW-Höhenrettung": "GW-H",
+    "Dekon-P": "DEKON
   },
   "vehicle_type_ids": {
     "LF": [0, 1, 6, 7, 8, 9, 30, 37, 90],
@@ -33,6 +35,8 @@
     "RW": [4, 30, 90],
     "GW-OL": [10],
     "RTW": [28, 38, 58],
-    "NEF": [29]
+    "NEF": [29],
+    "GW-H": [33],
+    "DEKON": [53]
   }
 }
