@@ -82,6 +82,17 @@ class LeitstellenAPI:
             #radioMessage[radioMessage['id']] = radioMessage
         return radioMessage
 
+    def get_all_patientdata(self, missionid):
+        r = self.session.get('https://www.leitstellenspiel.de/missions/%s' % missionid)
+        patient_json = re.findall('patientBarColor\((.*?)\);', r.text)
+        patient = {}
+        for b in patient_json:
+            patient = json.loads(b)
+            #radioMessage['id'] = str(radioMessage['id'])
+            #radioMessage[radioMessage['id']] = radioMessage
+        return patient
+
+
     def get_mission_details(self, missionid):
         mission = {'vehicles': {}}
         r = self.session.get('https://www.leitstellenspiel.de/missions/%s' % missionid)
@@ -183,21 +194,21 @@ class LeitstellenAPI:
                 result.append(vtype)
         return result
 
-    def parse_missing_rtw(self, patients_count):
-        logging.debug('Enter parse_missing_rtw %s' % patients_count)
-        if patients_count == 0:
-            return None
-        result = []
-
-        carrequest = str(patients_count) + " RTW"
-        vehicle_matches = carrequest.split()
-
-        vtype = self.lookup_vehicle_type_by_name(vehicle_matches[1])
-        logging.debug('Enter vtype %s' % vtype)
-
-        for i in range(int(vehicle_matches[0])):
-            result.append(vtype)
-        return result
+#    def parse_missing_rtw(self, patients_count):
+#        logging.debug('Enter parse_missing_rtw %s' % patients_count)
+#        if patients_count == 0:
+#            return None
+#        result = []
+#
+#        carrequest = str(patients_count) + " RTW"
+#        vehicle_matches = carrequest.split()
+#
+#        vtype = self.lookup_vehicle_type_by_name(vehicle_matches[1])
+#        logging.debug('Enter vtype %s' % vtype)
+#
+#        for i in range(int(vehicle_matches[0])):
+#            result.append(vtype)
+#        return result
 
 
     def parse_missing_pol(self, prisoners_count):
@@ -239,7 +250,7 @@ class LeitstellenAPI:
 
     def share_mission_in_alliance(self, missionid):
         logging.debug('Enter share_mission_in_alliance %s' % missionid)
-        self.session.get('https://www.leitstellenspiel.de/missions/%s/alliance' % missionid)
+        #self.session.get('https://www.leitstellenspiel.de/missions/%s/alliance' % missionid)
 
     def send_release_prisoner(self, missionid):
         logging.info('https://www.leitstellenspiel.de/missions/%s/gefangene/entlassen' % missionid)
