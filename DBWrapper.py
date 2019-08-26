@@ -24,7 +24,6 @@ class DBWrapper:
 					icon text,
                     check (status in ('NEW','MISSING','MISSING_POL','MISSING_RTW','CARCALL','DRIVING','ONGOING','FINISHED'))
                 );""")
-				#Prisoners and patients count added to handle the cases
         self.db.commit()
 
     def get_task_last_run(self, task_name):
@@ -42,9 +41,7 @@ class DBWrapper:
         self.c.execute("SELECT * FROM missions WHERE status IS NOT 'FINISHED'")
         result = self.c.fetchall()
         if result is None:
-        #    logging.debug('get_current_missions empty' )
             return []
-        #logging.debug('get_current_missions' + str(result))
         return result
 
     def get_missions_by_status(self, status):
@@ -52,12 +49,10 @@ class DBWrapper:
         result = self.c.fetchall()
         if result is None:
             return []
-        #logging.debug('get_missions_by_status' + str(result))
         return result
 
     def get_mission(self, id):
         self.c.execute("SELECT * FROM missions WHERE id=?", [id])
-        #logging.debug('get_mission' + str(self.c.fetchone()))
         return self.c.fetchone()
 
     def write_mission(self, mission):

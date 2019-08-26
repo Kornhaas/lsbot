@@ -148,6 +148,11 @@ class LeitstellenAPI:
             missing_text = re.sub(regex, '', missing_text)
             missing_text = missing_text + ", 1 Löschfahrzeug (LF),"
 
+        regex = r'( Wir benötigen noch min \w+ Personen mit Dekon-P Ausbildung$)'
+        if "Dekon-P" in missing_text:
+            missing_text = re.sub(regex, '', missing_text)
+            missing_text = missing_text + ", 1 Dekon-P (DEKON-P),"
+
         regex = r'(Wir benötigen noch min. \w+ Feuerwehrmann.$)'
         if "Feuerwehrmann" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
@@ -165,7 +170,6 @@ class LeitstellenAPI:
         missing_text = missing_text.replace(',,',',')
         missing_text = missing_text.replace(',  ,',',')
 
-        #vehicle_matches = re.findall('(?:[,.:]) (\d+) ([^,()]*?)(?: \([^()]*\))?(?=,|$)', missing_text)
         if missing_text.endswith(','):
             missing_text = missing_text[:-1]
 
@@ -193,23 +197,6 @@ class LeitstellenAPI:
             for i in range(int(vehicle_matches[0])):
                 result.append(vtype)
         return result
-
-#    def parse_missing_rtw(self, patients_count):
-#        logging.debug('Enter parse_missing_rtw %s' % patients_count)
-#        if patients_count == 0:
-#            return None
-#        result = []
-#
-#        carrequest = str(patients_count) + " RTW"
-#        vehicle_matches = carrequest.split()
-#
-#        vtype = self.lookup_vehicle_type_by_name(vehicle_matches[1])
-#        logging.debug('Enter vtype %s' % vtype)
-#
-#        for i in range(int(vehicle_matches[0])):
-#            result.append(vtype)
-#        return result
-
 
     def parse_missing_pol(self, prisoners_count):
         logging.debug('Enter parse_missing_pol %s' % prisoners_count)
@@ -260,16 +247,9 @@ class LeitstellenAPI:
         }
         self.session.post(url, data=data)
 
-
-
     def send_release_patient(self, carid):
         logging.info('https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid)
         self.session.get('https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid)
-    #    url = 'https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid
-    #    data = {
-    #        'authenticity_token': self.authenticity_token
-    #    }
-    #    self.session.post(url, data=data)
 
     def lookup_vehicle_type_ids(self, type):
         if type in self.data['vehicle_type_ids']:

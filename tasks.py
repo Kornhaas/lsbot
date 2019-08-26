@@ -95,8 +95,6 @@ def load_missions_into_db(ls, db):
         if dbm is None:
             logging.info('new mission: %s' % m['caption'])
             m['status'] = 'NEW'
-
-
         if m['vehicle_state'] == 1:
             m['status'] = "DRIVING"
         elif m['missing_text'] is not None and "red" not in m['icon']:
@@ -104,7 +102,6 @@ def load_missions_into_db(ls, db):
                 m['status'] = "MISSING"
             else:
                 m['status'] = 'NEW'
-            #        print("Handking for community event missing")
         elif m['prisoners_count'] != 0 and "red" not in m['icon']:
             m['status'] = "MISSING_POL"
         elif m['patients_count'] != 0 and "red" not in m['icon']:
@@ -132,8 +129,6 @@ def probe_new_missions(ls, db):
 
 
 def send_missing_cars(ls, db):
-    #logging.Debug("Enter send_missing_cars")
-    #logging.Debug("MISSING")
     missions = db.get_missions_by_status('MISSING')
 
     # check for prisoners call
@@ -184,10 +179,7 @@ def send_missing_cars(ls, db):
                 ls.send_cars_to_mission(m['id'], car_ids)
                 logging.info('sent cars to mission: %s' % m['caption'])
                 sleep(2)
-            # todo deal with missing crew
-            #if need_help:
-                # todo open mission for verband
-            #    pass
+
     #logging.Debug("MISSING_RTW")
     missions = db.get_missions_by_status('MISSING_RTW')
 
