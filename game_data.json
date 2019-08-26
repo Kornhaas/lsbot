@@ -20,6 +20,7 @@
     "RTW": "RTW",
     "NEF": "NEF",
     "GW-Höhenrettung": "GW-H",
+    "FwK": "FWK",
     "Dekon-P": "DEKON"
   },
   "vehicle_type_ids": {
@@ -38,6 +39,7 @@
     "RTW": [28, 38, 58],
     "NEF": [29],
     "GW-H": [33],
-    "DEKON": [53]
+    "DEKON": [53],
+    "FWK": [57]
   }
 }
