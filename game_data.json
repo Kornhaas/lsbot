@@ -21,7 +21,9 @@
     "NEF": "NEF",
     "GW-Höhenrettung": "GW-H",
     "FwK": "FWK",
-    "Dekon-P": "DEKON"
+    "Dekon-P": "DEKON",
+    "Gerätekraftwagen": "GKW",
+    "THW-Einsatzleitung": "MTWTZ"
   },
   "vehicle_type_ids": {
     "LF": [0, 1, 6, 7, 8, 9, 30, 37, 88, 89, 90],
@@ -40,6 +42,8 @@
     "NEF": [29],
     "GW-H": [33],
     "DEKON": [53],
-    "FWK": [57]
+    "FWK": [57],
+    "GKW": [39],
+    "MTWTZ": []
   }
 }
