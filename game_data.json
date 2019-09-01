@@ -23,7 +23,8 @@
     "FwK": "FWK",
     "Dekon-P": "DEKON",
     "Gerätekraftwagen": "GKW",
-    "THW-Einsatzleitung": "MTWTZ"
+    "THW-Einsatzleitung": "MTWTZ",
+    "THW-Mehrzweckkraftwagen": "MzKW"
   },
   "vehicle_type_ids": {
     "LF": [0, 1, 6, 7, 8, 9, 30, 37, 88, 89, 90],
@@ -44,6 +45,7 @@
     "DEKON": [53],
     "FWK": [57],
     "GKW": [39],
-    "MTWTZ": []
+    "MTWTZ": [],
+    "MzKW": []
   }
 }
