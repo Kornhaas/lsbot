@@ -249,6 +249,8 @@ class LeitstellenAPI:
 
     def send_release_patient(self, carid):
         logging.info('https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid)
+
+        # Last way out - Remove the guy from the car
         self.session.get('https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid)
 
     def lookup_vehicle_type_ids(self, type):
