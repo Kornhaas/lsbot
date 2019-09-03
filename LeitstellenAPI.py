@@ -191,6 +191,9 @@ class LeitstellenAPI:
             if vehicle_matches[1] == "ELW":
                 vehicle_matches[1] = vehicle_matches[1] + " " +vehicle_matches[2]
 
+            if vehicle_matches[1] == "LKW":
+                vehicle_matches[1] = vehicle_matches[1] + " " +vehicle_matches[2]
+
             vtype = self.lookup_vehicle_type_by_name(vehicle_matches[1])
             logging.debug('Enter vtype %s' % vtype)
 
