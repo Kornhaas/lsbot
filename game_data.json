@@ -37,7 +37,10 @@
     "SEK - Zivilfahrzeuge": "SEKZF",
     "SEK - Mannschaftstransportfahrzeug": "SEKMTF",
     "MEK - Zivilfahrzeuge": "MEKZF",
-    "MEK - Mannschaftstransportfahrzeug": "MEKMTF"
+    "MEK - Mannschaftstransportfahrzeug": "MEKMTF",
+    "GW-Taucher": "GWTa",
+    "Boot": "MZB",
+    "GW-Wasserrettung": "GWWa"
   },
   "vehicle_type_ids": {
     "LF": [0, 1, 6, 7, 8, 9, 30, 37, 88, 89, 90],
@@ -72,6 +75,9 @@
     "SEKZF": [],
     "SEKMTF": [],
     "MEKZF": [],
-    "MEKMTF": []
+    "MEKMTF": [],
+    "GWTa": [63],
+    "GWWa": [64],
+    "MZB": [70]
   }
 }
