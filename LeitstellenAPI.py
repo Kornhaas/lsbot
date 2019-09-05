@@ -261,11 +261,10 @@ class LeitstellenAPI:
     def send_release_patient(self, carid):
         for hospital in self.hospitallist:
             logging.info('https://www.leitstellenspiel.de/vehicles/%s/patient/%s' % (carid,hospital))
-
             r = self.session.get('https://www.leitstellenspiel.de/vehicles/%s/patient/%s' % (carid,hospital))
-            if r.status_code == 200:
-                logging.info('Patient send to hospital %s' % hospital)
-                break
+            #if r.status_code != 200:
+            #    logging.info('PStop trying to find a hospital')
+            #    break
         logging.info('End of loop')
         #quit()
     def lookup_vehicle_type_ids(self, type):
