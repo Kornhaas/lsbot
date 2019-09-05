@@ -16,7 +16,19 @@ def main():
         with open('config.json') as cf:
             config = json.load(cf)
 
-    ls = LeitstellenAPI(config['email'], config['password'])
+    if 'sharewithfriends' in config:
+        sharewithfriends = config['sharewithfriends']
+    else:
+        sharewithfriends = "TRUE"
+
+    if 'hospitals' in config:
+        hospitallist = config['hospitals'].split(",")
+    else:
+        hospitallist="-1".split(",")
+
+
+
+    ls = LeitstellenAPI(config['email'], config['password'], sharewithfriends, hospitallist)
     ls.login()
 
     periodic_tasks = [CrewHirer(),

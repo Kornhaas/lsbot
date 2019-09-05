@@ -1,4 +1,6 @@
 {
   "email":"email@example.com",
-  "password":"passw0rd"
+  "password":"passw0rd",
+  "hospitals":"-1",
+  "sharewithfriends":"FALSE"
 }

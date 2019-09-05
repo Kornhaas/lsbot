@@ -20,16 +20,17 @@ class LeitstellenAPI:
             "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36",
     }
 
-    def __init__(self, email, password):
+    def __init__(self, email, password, sharewithfriends, hospitallist):
         with open('game_data.json', encoding='utf-8') as d:
             self.data = json.load(d)
         self.email = email
         self.password = password
+        self.sharewithfriends = sharewithfriends
+        self.hospitallist = hospitallist
 
     def login(self):
         self.session = requests.session()
         self.session.headers.update(self.headers)
-
         for i in range(1, 5):
             logging.info('logging in... [try %d]' % i)
             data = {
@@ -92,7 +93,6 @@ class LeitstellenAPI:
             patient[patient['id']] = patient
         return patient
 
-
     def get_mission_details(self, missionid):
         mission = {'vehicles': {}}
         r = self.session.get('https://www.leitstellenspiel.de/missions/%s' % missionid)
@@ -142,7 +142,6 @@ class LeitstellenAPI:
         if missing_text is None:
             return None
 
-        #regex = r'^ Wir benötigen noch min. \w+ Feuerwehrleute.$'
         regex = r'(Wir benötigen noch min. \w+ Feuerwehrleute.$)'
         if "Feuerwehrleute" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
@@ -196,6 +195,7 @@ class LeitstellenAPI:
             if vehicle_matches[1] == "ELW":
                 vehicle_matches[1] = vehicle_matches[1] + " " +vehicle_matches[2]
 
+            #Special Handling for THW LKWK9
             if vehicle_matches[1] == "LKW":
                 vehicle_matches[1] = vehicle_matches[1] + " " +vehicle_matches[2]
 
@@ -244,8 +244,11 @@ class LeitstellenAPI:
         self.session.get('https://www.leitstellenspiel.de/vehicles/%s/backalarm?return=mission' % carid)
 
     def share_mission_in_alliance(self, missionid):
-        logging.debug('Enter share_mission_in_alliance %s' % missionid)
-        #self.session.get('https://www.leitstellenspiel.de/missions/%s/alliance' % missionid)
+        if self.sharewithfriends == "TRUE":
+            logging.debug('Share mission %s with alliance' % missionid)
+            self.session.get('https://www.leitstellenspiel.de/missions/%s/alliance' % missionid)
+        else:
+            logging.debug('No sharing of mission %s with aliance.' % missionid)
 
     def send_release_prisoner(self, missionid):
         logging.info('https://www.leitstellenspiel.de/missions/%s/gefangene/entlassen' % missionid)
@@ -256,11 +259,15 @@ class LeitstellenAPI:
         self.session.post(url, data=data)
 
     def send_release_patient(self, carid):
-        logging.info('https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid)
+        for hospital in self.hospitallist:
+            logging.info('https://www.leitstellenspiel.de/vehicles/%s/patient/%s' % (carid,hospital))
 
-        # Last way out - Remove the guy from the car
-        self.session.get('https://www.leitstellenspiel.de/vehicles/%s/patient/-1' % carid)
-
+            r = self.session.get('https://www.leitstellenspiel.de/vehicles/%s/patient/%s' % (carid,hospital))
+            if r.status_code == 200:
+                logging.info('Patient send to hospital %s' % hospital)
+                break
+        logging.info('End of loop')
+        #quit()
     def lookup_vehicle_type_ids(self, type):
         if type in self.data['vehicle_type_ids']:
             return self.data['vehicle_type_ids'][type]
