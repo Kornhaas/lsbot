@@ -8,3 +8,4 @@ sync.ffs_lock
 lsbot.log
 lsbot.db
 Testpage.html
+*.sh
