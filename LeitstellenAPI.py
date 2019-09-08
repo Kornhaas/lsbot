@@ -147,10 +147,20 @@ class LeitstellenAPI:
             missing_text = re.sub(regex, '', missing_text)
             missing_text = missing_text + ", 1 Löschfahrzeug (LF),"
 
+        regex = r'( Wir benötigen noch min \w+ Person mit Dekon-P Ausbildung$)'
+        if "Dekon-P" in missing_text:
+            missing_text = re.sub(regex, '', missing_text)
+
+            missing_text = missing_text + ", 1 Dekon-P (DEKON-P),"
         regex = r'( Wir benötigen noch min \w+ Personen mit Dekon-P Ausbildung$)'
         if "Dekon-P" in missing_text:
             missing_text = re.sub(regex, '', missing_text)
             missing_text = missing_text + ", 1 Dekon-P (DEKON-P),"
+
+        regex = r'( Wir benötigen min. \w+ Person mit GW-Wasserrettung Ausbildung.$)'
+        if "GW-Wasserrettung" in missing_text:
+            missing_text = re.sub(regex, '', missing_text)
+            missing_text = missing_text + ", 1 GW-Wasserrettung (GWWa),"
 
         regex = r'( Wir benötigen min. \w+ Personen mit GW-Wasserrettung Ausbildung.$)'
         if "GW-Wasserrettung" in missing_text:
