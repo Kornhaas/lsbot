@@ -2,5 +2,6 @@
   "email":"email@example.com",
   "password":"passw0rd",
   "hospitals":"-1",
+  "supportcommunity":"FALSE",
   "sharewithfriends":"FALSE"
 }

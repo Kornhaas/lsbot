@@ -20,13 +20,14 @@ class LeitstellenAPI:
             "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36",
     }
 
-    def __init__(self, email, password, sharewithfriends, hospitallist):
+    def __init__(self, email, password, sharewithfriends, hospitallist, supportcommunity):
         with open('game_data.json', encoding='utf-8') as d:
             self.data = json.load(d)
         self.email = email
         self.password = password
         self.sharewithfriends = sharewithfriends
         self.hospitallist = hospitallist
+        self.supportcommunity = supportcommunity
 
     def login(self):
         self.session = requests.session()

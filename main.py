@@ -21,6 +21,11 @@ def main():
     else:
         sharewithfriends = "TRUE"
 
+    if 'supportcommunity' in config:
+        supportcommunity = config['supportcommunity']
+    else:
+        supportcommunity = "TRUE"
+
     if 'hospitals' in config:
         hospitallist = config['hospitals'].split(",")
     else:
@@ -28,7 +33,7 @@ def main():
 
 
 
-    ls = LeitstellenAPI(config['email'], config['password'], sharewithfriends, hospitallist)
+    ls = LeitstellenAPI(config['email'], config['password'], sharewithfriends, hospitallist, supportcommunity)
     ls.login()
 
     periodic_tasks = [CrewHirer(),
@@ -41,7 +46,7 @@ def main():
             last_run = db.get_task_last_run(func.get_name())
             if last_run is None or last_run + func.get_wait_time() < time():
                 logging.debug('running periodic task "%s"' % func.get_name())
-                func.run(ls, db)
+                func.run(ls, db, supportcommunity)
                 db.write_task_last_run(func.get_name(), time())
 
 
