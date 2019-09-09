@@ -148,10 +148,6 @@ def send_missing_cars(ls, db):
                     ls.send_release_patient(r)
 
     for m in missions:
-        # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
-        # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
-        # todo better filter criteria
-
         if not m['sw'] and m['user_id'] == ls.user['id'] and "abtransportiert" not in m['missing_text']:
             print ("DEBUG" + str(m['id']))
             details = ls.get_mission_details(m['id'])
@@ -180,27 +176,15 @@ def send_missing_cars(ls, db):
                 logging.info('sent cars to mission: %s' % m['caption'])
                 sleep(2)
 
-    #logging.Debug("MISSING_RTW")
     missions = db.get_missions_by_status('MISSING_RTW')
 
     for m in missions:
-        # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
-        # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
-        # todo better filter criteria
-
         if not m['sw'] and m['user_id'] == ls.user['id']:
-            print ("DEBUG" + str(m['id']))
             details = ls.get_mission_details(m['id'])
-
             patientdata = ls.get_all_patientdata(m['id'])
-            print ("DEBUG:" + str(patientdata))
-
             patient_missing_text = None
 
-#            for id, p in patientdata.items():
-            print(len(patientdata) )
             if len(patientdata) != 0:
-                print (str(patientdata['name']))
                 if "None" in str(patientdata['missing_text']) and int(patientdata['target_percent']) == 0 and "gruen" not in m['icon']:
                     patient_missing_text = " 1 RTW (RTW),"
                     logging.debug('Patient Nachforderung %s' % str(patient_missing_text))
@@ -214,18 +198,13 @@ def send_missing_cars(ls, db):
                     patient_missing_text = " 1 NEF (NEF),"
                     logging.debug('Patient Nachforderung %s' % str(patient_missing_text))
 
-
                 if patient_missing_text is not None:
-                    print ("DEBUG:patient_missing_text in locals()")
                     avalible_cars = details['vehicles']['avalible']
-
                     need_help = False
                     car_ids = []
                     missing = ls.parse_missing(patient_missing_text)
-                    print ("DEBUG" + str(missing))
 
                     for missing_type in missing:
-                        print ("DEBUG" + str(missing_type))
                         type_ids = ls.lookup_vehicle_type_ids(missing_type)
                         found_car = False
                         for car in avalible_cars:
@@ -241,16 +220,10 @@ def send_missing_cars(ls, db):
                         logging.info('sent cars to mission: %s' % m['caption'])
                         sleep(2)
 
-    #logging.Debug("MISSING_POL")
     missions = db.get_missions_by_status('MISSING_POL')
 
     for m in missions:
-        # temp hack: filter out verband-missions so that resources dont get stuck on unmanagable big missions
-        # also filter 'sw' missions (with a timer, because they also take up vehicles for to much time)
-        # todo better filter criteria
-
         if not m['sw'] and m['user_id'] == ls.user['id']:
-            print ("DEBUG" + str(m['id']))
             details = ls.get_mission_details(m['id'])
 
             avalible_cars = details['vehicles']['avalible']
@@ -258,7 +231,6 @@ def send_missing_cars(ls, db):
             need_help = False
             car_ids = []
             missing = ls.parse_missing_pol(m['prisoners_count'])
-            print ("DEBUG" + str(m['prisoners_count']))
 
             for missing_type in missing:
                 type_ids = ls.lookup_vehicle_type_ids(missing_type)
@@ -271,6 +243,7 @@ def send_missing_cars(ls, db):
                         break
                 if not found_car:
                     need_help = True
+
             if len(car_ids) > 0:
                 ls.send_cars_to_mission(m['id'], car_ids)
                 logging.info('sent cars to mission: %s' % m['caption'])

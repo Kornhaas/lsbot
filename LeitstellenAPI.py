@@ -272,11 +272,8 @@ class LeitstellenAPI:
         for hospital in self.hospitallist:
             logging.info('https://www.leitstellenspiel.de/vehicles/%s/patient/%s' % (carid,hospital))
             r = self.session.get('https://www.leitstellenspiel.de/vehicles/%s/patient/%s' % (carid,hospital))
-            #if r.status_code != 200:
-            #    logging.info('PStop trying to find a hospital')
-            #    break
         logging.info('End of loop')
-        #quit()
+
     def lookup_vehicle_type_ids(self, type):
         if type in self.data['vehicle_type_ids']:
             return self.data['vehicle_type_ids'][type]
