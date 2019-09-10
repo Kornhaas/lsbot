@@ -29,7 +29,7 @@ class CrewHirer(AbstractPeriodicTask):
     def get_wait_time(self):
         return 24*60*60
 
-    def run(self, ls, db):
+    def run(self, ls, db, supportcommunity):
         logging.info('hire crew in every building')
         all_buildings = ls.get_all_buildings()
         for id, b in all_buildings.items():
