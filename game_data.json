@@ -42,6 +42,7 @@
     "MEK - Mannschaftstransportfahrzeug": "MEKMTF",
     "GW-Taucher": "GWTa",
     "Boot": "MZB",
+    "Boote": "MZB",
     "GW-Wasserrettung": "GWWa"
   },
   "vehicle_type_ids": {
